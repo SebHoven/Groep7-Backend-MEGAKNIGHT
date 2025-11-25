@@ -20,6 +20,7 @@ model Teacher {
   password  String
   name      String?
   groups    Group[]
+  tasks     Task[]
 }
 
 model Group {
@@ -38,4 +39,17 @@ model Student {
   loginCode  String   @unique
   group      Group    @relation(fields: [groupId], references: [id])
   groupId    Int
+}
+
+model Task {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  name         String
+  description  String?
+  date         DateTime?
+  icon         String?
+  xp           Int?
+  coordinates  Float?
+  teacher      Teacher   @relation(fields: [teacherId], references: [id])
+  teacherId    Int
 }
