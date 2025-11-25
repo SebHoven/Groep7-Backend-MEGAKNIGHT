@@ -1,0 +1,16 @@
+services:
+  groups:
+    container_name: groups
+    build: ./groups
+    volumes:
+      - ./groups/code:/usr/src/app
+    networks:
+      - schoolyard
+    ports:
+      - "3012:3012"
+    working_dir: /usr/src/app
+    command: npm run dev
+
+networks:
+  schoolyard:
+    driver: bridge
