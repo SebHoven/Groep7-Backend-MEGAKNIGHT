@@ -1,20 +1,4 @@
-# Use Node LTS
-FROM node:lts
+FROM node:24.7.0
+RUN mkdir -p /usr/src/app
 
-# Set working directory
-WORKDIR /usr/src/app
-
-# Copy package.json first for better caching
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the code
-COPY . .
-
-# Expose your port
-EXPOSE 3012
-
-# Default command
-CMD ["npm", "run", "dev"]
+RUN npm install 
