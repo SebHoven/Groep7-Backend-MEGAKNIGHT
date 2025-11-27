@@ -20,4 +20,16 @@ interface Student {
   groupId: number;   // reference to Group
 }
 
-export { Teacher, Group, Student };
+interface Task {
+  id?: number;
+  createdAt?: Date;
+  name: string;
+  description: string;
+  date: Date;
+  icon: string;
+  xp: number;
+  coordinates: number;
+  teacherId: number; // reference to Teacher
+}
+
+export { Teacher, Group, Student, Task };
