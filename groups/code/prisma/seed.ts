@@ -29,6 +29,18 @@ async function main() {
             }
           }
         ]
+      },
+      tasks: {
+        create : [
+          {
+            name: 'kan je koppen??',
+            description: 'rode kaart pakken',
+            date: new Date(2025, 6, 4),
+            icon: '🫃🟥',
+            xp: 67,
+            coordinates: 35.4
+          }
+        ]
       }
     }
   })
