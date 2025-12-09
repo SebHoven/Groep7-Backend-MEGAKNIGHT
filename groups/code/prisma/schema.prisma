@@ -30,15 +30,18 @@ model Group {
   teacher    Teacher   @relation(fields: [teacherId], references: [id])
   teacherId  Int
   students   Student[]
+  groupstudent GroupStudent[]
 }
 
 model Student {
-  id         Int      @id @default(autoincrement())
-  createdAt  DateTime @default(now())
-  name       String
-  loginCode  String   @unique
-  group      Group    @relation(fields: [groupId], references: [id])
-  groupId    Int
+  id           Int      @id @default(autoincrement())
+  createdAt    DateTime @default(now())
+  name         String
+  loginCode    String   @unique
+  group        Group    @relation(fields: [groupId], references: [id])
+  groupId      Int
+  groupstudent GroupStudent[]
+  taskstudent  TaskStudent[]
 }
 
 model Task {
@@ -52,4 +55,33 @@ model Task {
   coordinates  Float?
   teacher      Teacher   @relation(fields: [teacherId], references: [id])
   teacherId    Int
+  tasksteps    TaskStep[]
+  taskstudent  TaskStudent[]
+}
+
+model TaskStep {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  text         String
+  completed    Boolean   @default(false)
+  tasks        Task      @relation(fields: [taskId], references: [id])
+  taskId       Int
+}
+
+model GroupStudent {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  group        Group     @relation(fields: [groupId], references: [id])
+  groupId      Int
+  student      Student   @relation(fields: [studentId], references: [id])
+  studentId    Int
+}
+
+model TaskStudent {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  task         Task      @relation(fields: [taskId], references: [id])
+  taskId       Int
+  student      Student   @relation(fields: [studentId], references: [id])
+  studentId    Int
 }

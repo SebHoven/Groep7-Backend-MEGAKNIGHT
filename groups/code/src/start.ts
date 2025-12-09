@@ -3,6 +3,7 @@ import Express, { Application, Request, Response, NextFunction } from 'express';
 import * as Dotenv from 'dotenv';
 Dotenv.config({ path: '.env' });
 import IndexRouter from './routes/index.js';
+import cors from 'cors';
 import { errorHandler } from './middleware/errors/errorHandler.js';
 const app: Application = Express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3012;
@@ -10,6 +11,8 @@ const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3012;
 // support json encoded and url-encoded bodies, mainly used for post and update
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
+
+app.use(cors());
 
 app.use('/', IndexRouter);
 
