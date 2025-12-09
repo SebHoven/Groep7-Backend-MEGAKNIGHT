@@ -20,7 +20,8 @@ interface Student {
   loginCode: string; // used instead of email/password
   groupId: number;   // reference to Group
   tasks?: TaskStudent[];
-  gropus?: GroupStudent[];
+  groups?: GroupStudent[];
+  avatar?: Avatar[];
 }
 
 interface Task {
@@ -59,4 +60,32 @@ interface TaskStudent {
   studentId: number; // reference to Student
 }
 
-export { Teacher, Group, Student, Task, TaskStep, GroupStudent, TaskStudent };
+interface Avatar {
+  id?: number;
+  createdAt?: Date;
+  studentId: number;
+  student?: Student;
+  avatarHasItem: AvatarHasItem[];
+}
+
+interface AvatarHasItem {
+  id: number;
+  createdAt?: Date;
+  avatarId: number;
+  avatar: Avatar;
+  avatarItemId: number;
+  avatarItem: AvatarItem;
+}
+
+interface AvatarItem {
+  id: number;
+  createdAt: Date;
+  slot: number;
+  name: string;
+  texture: string;
+  avatarHasItem: AvatarHasItem[];
+}
+
+
+
+export { Teacher, Group, Student, Task, TaskStep, GroupStudent, TaskStudent, Avatar, AvatarHasItem, AvatarItem };

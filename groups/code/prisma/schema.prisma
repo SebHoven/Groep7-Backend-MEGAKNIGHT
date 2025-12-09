@@ -42,6 +42,7 @@ model Student {
   groupId      Int
   groupstudent GroupStudent[]
   taskstudent  TaskStudent[]
+  avatar       Avatar[]
 }
 
 model Task {
@@ -85,4 +86,30 @@ model TaskStudent {
   taskId       Int
   student      Student   @relation(fields: [studentId], references: [id])
   studentId    Int
+}
+
+model Avatar {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  student      Student   @relation(fields: [studentId], references: [id])
+  studentId    Int       
+  avatarItem   AvatarItemHasAvatar[]
+}
+
+model AvatarItem {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  slot         Int 
+  name         String
+  texture      String
+  avatarItem   AvatarItemHasAvatar[]
+}
+
+model AvatarItemHasAvatar {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  avatar       Avatar    @relation(fields: [avatarId], references: [id])
+  avatarId     Int
+  avataritem   AvatarItem @relation(fields: [avatarItemId], references: [id])
+  avatarItemId Int
 }

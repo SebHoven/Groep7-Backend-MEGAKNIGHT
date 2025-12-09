@@ -1,0 +1,26 @@
+-- CreateTable
+CREATE TABLE "Avatar" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "studentId" INTEGER NOT NULL,
+    CONSTRAINT "Avatar_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "AvatarItem" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "slot" INTEGER NOT NULL,
+    "name" TEXT NOT NULL,
+    "texture" TEXT NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "AvatarItemHasAvatar" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "avatarId" INTEGER NOT NULL,
+    "avatarItemId" INTEGER NOT NULL,
+    CONSTRAINT "AvatarItemHasAvatar_avatarId_fkey" FOREIGN KEY ("avatarId") REFERENCES "Avatar" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT "AvatarItemHasAvatar_avatarItemId_fkey" FOREIGN KEY ("avatarItemId") REFERENCES "AvatarItem" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
