@@ -53,6 +53,7 @@ model Task {
   icon         String?
   xp           Int?
   coordinates  Float?
+  completed    Boolean  @default(false)
   teacher      Teacher   @relation(fields: [teacherId], references: [id])
   teacherId    Int
   tasksteps    TaskStep[]
