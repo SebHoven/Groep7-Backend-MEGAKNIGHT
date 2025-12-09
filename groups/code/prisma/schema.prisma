@@ -43,6 +43,7 @@ model Student {
   groupstudent GroupStudent[]
   taskstudent  TaskStudent[]
   avatar       Avatar[]
+  progress     BattlepassProgress[]
 }
 
 model Task {
@@ -103,6 +104,7 @@ model AvatarItem {
   name         String
   texture      String
   avatarItem   AvatarItemHasAvatar[]
+  battlepassReward BattlepassReward[]
 }
 
 model AvatarItemHasAvatar {
@@ -112,4 +114,35 @@ model AvatarItemHasAvatar {
   avatarId     Int
   avataritem   AvatarItem @relation(fields: [avatarItemId], references: [id])
   avatarItemId Int
+}
+
+model Battlepass {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  name         String
+  startDate    DateTime
+  endDate      DateTime
+  rewards      BattlepassReward[]
+  progress     BattlepassProgress[]
+}
+
+model BattlepassReward {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  level        Int
+  avatarItemId Int
+  avatarItem   AvatarItem    @relation(fields: [avatarItemId], references: [id])
+  battlepassId Int
+  battlepass   Battlepass @relation(fields: [battlepassId], references: [id])
+}
+
+model BattlepassProgress {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  xp           Int
+  level        Int
+  battlepassId Int
+  battlepass   Battlepass @relation(fields: [battlepassId], references: [id])
+  student      Student   @relation(fields: [studentId], references: [id])
+  studentId    Int
 }
