@@ -15,6 +15,8 @@ interface TaskResponse {
     data: Task[]
 }
 
+
+
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
         const tasks = await prisma.task.findMany();
@@ -46,17 +48,29 @@ export const getTaskById = async (req: Request, res: Response) => {
 
 export const createTask = async (req: Request, res: Response) => {
     const taskName = req.body.name;
-    console.log(taskName);
+    
     try {
         const task = await prisma.task.create({
-            data: {
+            data: { 
                 name: req.body.name,
                 description: req.body.description,
                 date: req.body.date ? new Date(req.body.date) : undefined,
                 icon: req.body.icon,
                 xp: req.body.xp !== undefined ? Number(req.body.xp) : undefined,
                 coordinates: req.body.coordinates !== undefined ? Number(req.body.coordinates) : undefined,
-                teacherId: req.body.teacherId !== undefined? Number(req.body.teacherId) : undefined
+                teacherId: req.body.teacherId !== undefined ? Number(req.body.teacherId) : undefined,
+                tasksteps: req.body.steps && req.body.steps.length > 0 ? {
+                    create: req.body.steps
+                            .filter((step: any) => step.description && step.description.trim() !== '')
+                            .map((step: any) => ({
+                                text: step.description,
+                                completed: false
+                            }))
+                    }
+                    : undefined
+            },
+            include: {
+                tasksteps: true
             }
         })
         res.status(200).json(task);
