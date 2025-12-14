@@ -6,4 +6,4 @@ node_modules
 
 /generated/prisma
 
-groups.db
+groups/code/prisma/prisma/groups.db
