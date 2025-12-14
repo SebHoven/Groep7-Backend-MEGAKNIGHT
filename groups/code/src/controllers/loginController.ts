@@ -110,9 +110,6 @@ export class LoginController {
    */
   async logout(req: Request, res: Response): Promise<Response> {
     try {
-      // If using token blacklist, add token to blacklist here
-      // const token = req.headers.authorization?.split(' ')[1];
-      // await prisma.tokenBlacklist.create({ data: { token } });
 
       return res.status(200).json({
         success: true,
@@ -143,7 +140,6 @@ export class LoginController {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; email: string };
 
-      // Optionally verify user still exists in database
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
         select: { id: true, email: true, name: true }
