@@ -1,7 +1,7 @@
 import Express, { Router } from 'express';
 import { getTeachers} from '../controllers/groupsController.js';
 import cors from 'cors';
-import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.ts';
+import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.js';
 
 const router: Router = Express.Router();
 

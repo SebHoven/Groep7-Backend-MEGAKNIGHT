@@ -6,7 +6,6 @@
     "lib": ["ES2022", "DOM"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "allowImportingTsExtensions": true,
     "strict": false,
     "noImplicitAny": true,
     "noImplicitThis": true,
