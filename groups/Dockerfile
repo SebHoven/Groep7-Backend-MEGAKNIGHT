@@ -3,10 +3,10 @@ FROM node:24.7.0
 WORKDIR /usr/src/app
 
 COPY code/package*.json ./
+COPY code/prisma ./prisma
 
 RUN npm install
 
-COPY code/prisma ./prisma
 COPY code ./ 
 
 COPY . .
