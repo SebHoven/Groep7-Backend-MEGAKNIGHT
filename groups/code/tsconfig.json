@@ -13,7 +13,6 @@
     "noImplicitReturns": true,
     "removeComments": true,
     "esModuleInterop": true,
-    "allowImportingTsExtensions": true,
     "declaration": true,
     "emitDeclarationOnly": false
   },

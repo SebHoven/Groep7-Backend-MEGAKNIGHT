@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import request from "supertest";
 import Express from "express";
-import IndexRouter from "../src/routes/index.js";
+import IndexRouter from "../routes/index.js";
 
 const app = Express();
 app.use(Express.json());
