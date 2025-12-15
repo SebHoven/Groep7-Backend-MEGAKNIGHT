@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY code/package*.json ./
 COPY code/prisma ./prisma
 
 RUN npm install
