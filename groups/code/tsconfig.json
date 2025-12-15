@@ -1,27 +1,26 @@
 {
   "compilerOptions": {
-      "rootDir": "src",
-      "outDir": "dist",
-      "target": "es2022",
-      "module": "NodeNext",
-      "moduleResolution": "NodeNext",
-      "strict": false,
-      "noImplicitAny": true,
-      "noImplicitThis": true,
-      "noImplicitOverride": true,
-      "noImplicitReturns": true,
-      "removeComments": true,
-      "esModuleInterop": true,
-      "allowImportingTsExtensions": true,
-      "declaration": true,
-      "emitDeclarationOnly": false
-    },
-    "include": [
-      "src/**/*",
-      "tests/**/*.ts"
-, "prisma"    ],
-    "exclude": [
-      "node_modules",
-      "**/*.spec.ts"
-    ]
+    "rootDir": "src",
+    "outDir": "dist",
+    "target": "es2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": false,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "removeComments": true,
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true,
+    "declaration": true,
+    "emitDeclarationOnly": false
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
 }
