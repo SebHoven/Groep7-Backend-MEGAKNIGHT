@@ -1,28 +1,29 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "strict": false,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noImplicitOverride": true,
-    "noImplicitReturns": true,
-    "removeComments": true,
-    // "outDir": "./build/",
-    "outDir": "dist",
-    "rootDir": "src",
-    "esModuleInterop": true,
-    "allowImportingTsExtensions": true,
-    "declaration": true,
-    "emitDeclarationOnly": false
-  },
+      "rootDir": ".",
+      "outDir": "dist",
+      "target": "es2022",
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext",
+      "strict": false,
+      "noImplicitAny": true,
+      "noImplicitThis": true,
+      "noImplicitOverride": true,
+      "noImplicitReturns": true,
+      "removeComments": true,
+      "esModuleInterop": true,
+      "allowImportingTsExtensions": true,
+      "declaration": true,
+      "emitDeclarationOnly": false
+    },
     "include": [
-        "src/**/*",
-        "prisma/seed.ts", "prisma/types.ts", "tests/**/*.ts"
+      "src/**/*",
+      "prisma/seed.ts",
+      "prisma/types.ts",
+      "tests/**/*.ts"
     ],
     "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
+      "node_modules",
+      "**/*.spec.ts"
     ]
 }
