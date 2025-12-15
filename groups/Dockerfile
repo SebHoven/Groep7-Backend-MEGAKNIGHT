@@ -7,7 +7,7 @@ COPY code/prisma ./prisma
 
 RUN npm install
 
-COPY code ./ 
+COPY code/src ./src
 
 COPY . .
 
