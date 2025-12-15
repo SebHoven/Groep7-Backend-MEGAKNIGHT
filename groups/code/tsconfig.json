@@ -9,8 +9,10 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "removeComments": true,
-    "outDir": "./build/",
-    // "esModuleInterop": true,
+    // "outDir": "./build/",
+    "outDir": "dist",
+    "rootDir": "src",
+    "esModuleInterop": true,
     "allowImportingTsExtensions": true,
     "declaration": true,
     "emitDeclarationOnly": false
