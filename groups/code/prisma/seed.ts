@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
+import bcrypt from 'bcrypt'
 
 async function main() {
   // Create a teacher
@@ -42,6 +43,17 @@ async function main() {
           }
         ]
       }
+    }
+  })
+
+    const hashedPassword = await bcrypt.hash('password123', 10)
+
+  // Create a user for login
+  const user = await prisma.user.create({
+    data: {
+      email: "admin@example.com",
+      password: hashedPassword,
+      name: "Admin User"
     }
   })
 
