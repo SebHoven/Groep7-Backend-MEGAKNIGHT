@@ -19,7 +19,14 @@ interface TaskResponse {
 
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
-        const tasks = await prisma.task.findMany();
+        const tasks = await prisma.task.findMany({
+            include: {
+                tasksteps: true,
+                taskstudent: {
+                include: { student: true }
+                }
+            }
+        });
         const taskResponse: TaskResponse = {
             meta: {
                 count: tasks.length,
