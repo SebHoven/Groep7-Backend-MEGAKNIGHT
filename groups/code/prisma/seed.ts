@@ -48,7 +48,6 @@ async function main() {
       date: new Date(2025, 6, 4),
       icon: '🫃🟥',
       xp: 67,
-      coordinates: 35.4,
       teacherId: teacher.id,
       tasksteps: {
         create: [
@@ -65,8 +64,10 @@ async function main() {
             completed: false
           }
         ]
-      }
-    }
+      },
+      x: 150,
+      y: 300
+    },
   })
 
   const studentsToAssign = [

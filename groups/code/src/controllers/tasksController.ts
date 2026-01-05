@@ -55,6 +55,7 @@ export const getTaskById = async (req: Request, res: Response) => {
 
 export const createTask = async (req: Request, res: Response) => {
     const taskName = req.body.name;
+    console.log(`Creating task ${req.body}`);
     
     try {
         const task = await prisma.task.create({
@@ -64,7 +65,6 @@ export const createTask = async (req: Request, res: Response) => {
                 date: req.body.date ? new Date(req.body.date) : undefined,
                 icon: req.body.icon,
                 xp: req.body.xp !== undefined ? Number(req.body.xp) : undefined,
-                coordinates: req.body.coordinates !== undefined ? Number(req.body.coordinates) : undefined,
                 teacherId: req.body.teacherId !== undefined ? Number(req.body.teacherId) : undefined,
                 tasksteps: req.body.steps && req.body.steps.length > 0 ? {
                     create: req.body.steps
@@ -74,7 +74,9 @@ export const createTask = async (req: Request, res: Response) => {
                                 completed: false
                             }))
                     }
-                    : undefined
+                    : undefined,
+                x: req.body.x !== undefined ? Number(req.body.x) : undefined,
+                y: req.body.y !== undefined ? Number(req.body.y) : undefined
             },
             include: {
                 tasksteps: true
@@ -93,13 +95,14 @@ export const updateTask = async (req: Request, res: Response) => {
             where:
                 { id: Number(id) },
             data: {
-                 name: req.body.name,
+                name: req.body.name,
                 description: req.body.description,
                 date: req.body.date ? new Date(req.body.date) : undefined,
                 icon: req.body.icon,
                 xp: req.body.xp !== undefined ? Number(req.body.xp) : undefined,
-                coordinates: req.body.coordinates !== undefined ? Number(req.body.coordinates) : undefined,
-                teacherId: req.body.teacherId !== undefined? Number(req.body.teacherId) : undefined
+                teacherId: req.body.teacherId !== undefined? Number(req.body.teacherId) : undefined,
+                x: req.body.x !== undefined ? Number(req.body.x) : undefined,
+                y: req.body.y !== undefined ? Number(req.body.y) : undefined
             }
         })
        res.status(200).json(task);
