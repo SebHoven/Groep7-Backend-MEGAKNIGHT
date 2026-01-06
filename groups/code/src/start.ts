@@ -1,10 +1,12 @@
 import Express, { Application, Request, Response, NextFunction } from 'express';
 import * as Dotenv from 'dotenv';
 Dotenv.config({ path: '.env' });
+
 import IndexRouter from './routes/index.js';
 import cors from 'cors';
 import { errorHandler } from './middleware/errors/errorHandler.js';
-import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
 
 const app: Application = Express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3012;
@@ -17,6 +19,16 @@ app.use(cors({
 // support json encoded and url-encoded bodies
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
+
+// ensure uploads folder exists
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// serve uploads folder as static
+// browser: http://localhost:3012/uploads/<filename>
+app.use('/uploads', Express.static(uploadsDir));
 
 // ROUTES (MUST be after CORS)
 app.use('/', IndexRouter);

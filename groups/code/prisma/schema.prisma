@@ -146,3 +146,21 @@ model BattlepassProgress {
   student      Student   @relation(fields: [studentId], references: [id])
   studentId    Int
 }
+model Map {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name      String
+  imageUrl  String
+
+  states    MapState[]
+}
+model MapState {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  zoom      Float    @default(1)
+  positionX Float    @default(0)
+  positionY Float    @default(0)
+
+  mapId Int @unique
+  map   Map @relation(fields: [mapId], references: [id], onDelete: Cascade)
+}

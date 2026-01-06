@@ -1,10 +1,10 @@
 import Express, { Router } from 'express';
 import { getTeachers} from '../controllers/groupsController.js';
 import cors from 'cors';
-import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.ts';
+import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.js';
+import mapRoutes from './maps.js';
 
 const router: Router = Express.Router();
-
 
 // router.get('/', (req: Request, res: Response, next: NextFunction) => {
 //   res.json('hi');
@@ -17,5 +17,6 @@ router.get('/tasks', cors(), getAllTasks);
 router.post('/tasks', cors(), createTask);
 router.put('/tasks/:id', cors(), updateTask);
 router.delete('/tasks/:id', cors(), deleteTask);
+router.use('/maps', mapRoutes);
 
 export default router;
