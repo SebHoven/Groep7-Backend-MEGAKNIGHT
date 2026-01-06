@@ -3,6 +3,16 @@ const prisma = new PrismaClient()
 import bcrypt from 'bcrypt'
 
 async function main() {
+
+  // Create a battlepass
+  const battlepass = await prisma.battlepass.create({
+    data: {
+      name: "Season 1",
+      startDate: new Date("2025-01-01"),
+      endDate: new Date("2025-06-01")
+    }
+  });
+
   // Create a teacher
   const teacher = await prisma.teacher.create({
     data: {
@@ -95,6 +105,20 @@ async function main() {
       name: "Admin User"
     }
   })
+
+  // Get students and assign BattlepassProgress
+  const students = teacher.groups.flatMap(group => group.students);
+
+  await prisma.battlepassProgress.createMany({
+    data: students.map((student, index) => ({
+      studentId: student.id,
+      battlepassId: battlepass.id,
+
+      // Random xp and levels
+      level: Math.floor(index / 2) + 1,
+      xp: 100 + index * 50
+    }))
+  });
 
   console.log("Seeded teacher with groups and students:", teacher)
 }

@@ -4,6 +4,7 @@ import cors from 'cors';
 import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.ts';
 import { LoginController } from '../controllers/loginController.ts';
 import { RegisterController } from '../controllers/registerController.ts';
+import { getLeaderboard } from '../controllers/leaderboardController.ts';
 
 const registerController = new RegisterController();
 
@@ -16,6 +17,8 @@ const router: Router = Express.Router();
 //   next();
 // });
 router.get('/teachers', cors(), getTeachers);
+
+router.get('/leaderboard', cors(), getLeaderboard);
 
 router.get('/tasks/:id', cors(), getTaskById);
 router.get('/tasks', cors(), getAllTasks);
