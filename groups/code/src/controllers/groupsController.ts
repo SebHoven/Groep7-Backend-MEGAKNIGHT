@@ -103,6 +103,24 @@ export const getGroupStudents = async (req: Request, res: Response) => {
 };
 
 /**
+ * Get all unassigned students (students without a group)
+ */
+export const getUnassignedStudents = async (req: Request, res: Response) => {
+    try {
+        const students = await prisma.student.findMany({
+            where: { groupId: null }
+        });
+        
+        res.status(200).json({
+            count: students.length,
+            students: students
+        });
+    } catch (errors) {
+        res.status(500).json({ error: 'kan ongegroepeerde studenten niet vinden' });
+    }
+};
+
+/**
  * Get groups by teacher ID
  */
 export const getGroupsByTeacher = async (req: Request, res: Response) => {
@@ -179,12 +197,19 @@ export const deleteGroup = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
         
-        // First delete related GroupStudent records
+        // Set all students in this group to unassigned (groupId = null)
+        await prisma.student.updateMany({
+            where: { groupId: Number(id) },
+            data: { groupId: null }
+        });
+        
+        // Delete GroupStudent junction records (will be done automatically with onDelete: Cascade)
+        // But we can do it explicitly for clarity
         await prisma.groupStudent.deleteMany({
             where: { groupId: Number(id) }
         });
         
-        // Then delete the group
+        // Now delete the group
         const group = await prisma.group.delete({
             where: { id: Number(id) }
         });
@@ -200,52 +225,61 @@ export const deleteGroup = async (req: Request, res: Response) => {
  */
 export const addStudentToGroup = async (req: Request, res: Response) => {
     try {
-        const groupId = req.params.id;
-        const studentId = req.body.studentId;
+        const groupId = parseInt(req.params.groupId);  // Changed from req.params.id
+        const studentId = parseInt(req.params.studentId);  // Changed from req.body.studentId
         
         // Update the student's groupId
         const student = await prisma.student.update({
-            where: { id: Number(studentId) },
-            data: { groupId: Number(groupId) }
+            where: { id: studentId },
+            data: { groupId: groupId }
         });
         
         // Create GroupStudent relationship
         await prisma.groupStudent.create({
             data: {
-                groupId: Number(groupId),
-                studentId: Number(studentId)
+                groupId: groupId,
+                studentId: studentId
             }
         });
         
         res.status(200).json({ 
             message: 'student toegevoegd aan groep',
-            student: student
+            data: student
         });
     } catch (errors) {
+        console.error('Error adding student to group:', errors);
         res.status(500).json({ error: 'kan student niet toevoegen aan groep' });
     }
 };
 
 /**
- * Remove a student from a group
+ * Remove a student from a group (sets student to unassigned)
  */
 export const removeStudentFromGroup = async (req: Request, res: Response) => {
     try {
-        const groupId = req.params.id;
-        const studentId = req.params.studentId;
+        const groupId = parseInt(req.params.groupId);
+        const studentId = parseInt(req.params.studentId);
+        
+        // Remove the student's groupId
+        const student = await prisma.student.update({
+            where: { id: studentId },
+            data: { groupId: null }
+        });
         
         // Delete GroupStudent relationship
         await prisma.groupStudent.deleteMany({
             where: {
-                groupId: Number(groupId),
-                studentId: Number(studentId)
+                groupId: groupId,
+                studentId: studentId
             }
         });
         
         res.status(200).json({ 
-            message: 'student verwijderd uit groep'
+            message: 'student verwijderd uit groep',
+            data: student
         });
     } catch (errors) {
+        console.error('Error removing student from group:', errors);
         res.status(500).json({ error: 'kan student niet verwijderen uit groep' });
     }
 };
