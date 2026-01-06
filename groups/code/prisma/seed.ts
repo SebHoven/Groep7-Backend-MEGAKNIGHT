@@ -30,21 +30,59 @@ async function main() {
             }
           }
         ]
-      },
-      tasks: {
-        create : [
+      }
+    },
+    include: {
+      groups: {
+        include: {
+          students: true
+        }
+      }
+    }
+  })
+
+  const task = await prisma.task.create({
+    data: {
+      name: 'kan je koppen??',
+      description: 'rode kaart pakken',
+      date: new Date(2025, 6, 4),
+      icon: '🫃🟥',
+      xp: 67,
+      coordinates: 35.4,
+      teacherId: teacher.id,
+      tasksteps: {
+        create: [
           {
-            name: 'kan je koppen??',
-            description: 'rode kaart pakken',
-            date: new Date(2025, 6, 4),
-            icon: '🫃🟥',
-            xp: 67,
-            coordinates: 35.4
+            text: 'Ga naar het veld',
+            completed: false
+          },
+          {
+            text: 'Pak de rode kaart',
+            completed: false
+          },
+          {
+            text: 'Koppen',
+            completed: false
           }
         ]
       }
     }
   })
+
+  const studentsToAssign = [
+    teacher.groups[0].students[0],
+    teacher.groups[0].students[1],
+    teacher.groups[1].students[0]
+  ]
+
+  for (const student of studentsToAssign) {
+    await prisma.taskStudent.create({
+      data: {
+        taskId: task.id,
+        studentId: student.id
+      }
+    })
+  }
 
     const hashedPassword = await bcrypt.hash('password123', 10)
 
