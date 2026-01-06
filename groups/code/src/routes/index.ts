@@ -1,5 +1,5 @@
 import Express, { Router } from 'express';
-import { getTeachers} from '../controllers/groupsController.js';
+import { getAllGroups, getGroupById, getGroupStudents, getGroupsByTeacher, createGroup, updateGroup, deleteGroup} from '../controllers/groupsController.js';
 import cors from 'cors';
 import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.ts';
 import { LoginController } from '../controllers/loginController.ts';
@@ -15,7 +15,13 @@ const router: Router = Express.Router();
 //   res.json('hi');
 //   next();
 // });
-router.get('/teachers', cors(), getTeachers);
+router.get('/groups', cors(), getAllGroups);
+router.get('/groups/:id', cors(), getGroupById);
+router.get('/groups/:id/students', cors(), getGroupStudents);
+router.get('/groups/teacher/:teacherId', cors(), getGroupsByTeacher);
+router.post('/groups', cors(), createGroup);
+router.put('/groups/:id', cors(), updateGroup);
+router.delete('/groups/:id', cors(), deleteGroup);
 
 router.get('/tasks/:id', cors(), getTaskById);
 router.get('/tasks', cors(), getAllTasks);
