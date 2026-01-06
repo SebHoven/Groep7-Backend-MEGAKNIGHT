@@ -51,7 +51,8 @@ model Task {
   date         DateTime?
   icon         String?
   xp           Int?
-  coordinates  Float?
+  x            Float?
+  y            Float?
   completed    Boolean  @default(false)
   teacher      Teacher   @relation(fields: [teacherId], references: [id])
   teacherId    Int
