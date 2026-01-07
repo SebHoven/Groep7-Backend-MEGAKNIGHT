@@ -95,7 +95,19 @@ async function main() {
     })
   }
 
-    const hashedPassword = await bcrypt.hash('password123', 10)
+  // Create some unassigned students (not in any group yet)
+  // Note: Don't explicitly set groupId, let it default to null
+  const unassignedStudents = await prisma.student.createMany({
+    data: [
+      { name: "Emma Wilson", loginCode: "EW111" },
+      { name: "Oliver Davis", loginCode: "OD222" },
+      { name: "Sophia Martinez", loginCode: "SM333"},
+      { name: "Lucas Garcia", loginCode: "LG444"},
+      { name: "Mia Rodriguez", loginCode: "MR555" }
+    ]
+  })
+
+  const hashedPassword = await bcrypt.hash('password123', 10)
 
   // Create a user for login
   const user = await prisma.user.create({
