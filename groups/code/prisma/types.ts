@@ -32,10 +32,11 @@ interface Task {
   date: Date;
   icon: string;
   xp: number;
-  coordinates: number;
   teacherId: number; // reference to Teacher
   tasksteps?: TaskStep[];
   students?: TaskStudent[];
+  x?: number;
+  y?: number;
 }
 
 interface TaskStep {
