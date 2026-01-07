@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -38,8 +35,8 @@ model Student {
   createdAt    DateTime @default(now())
   name         String
   loginCode    String   @unique
-  group        Group    @relation(fields: [groupId], references: [id])
-  groupId      Int
+  group        Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
+  groupId      Int?
   groupstudent GroupStudent[]
   taskstudent  TaskStudent[]
   avatar       Avatar[]
@@ -75,9 +72,9 @@ model TaskStep {
 model GroupStudent {
   id           Int       @id @default(autoincrement())
   createdAt    DateTime  @default(now())
-  group        Group     @relation(fields: [groupId], references: [id])
+  group        Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId      Int
-  student      Student   @relation(fields: [studentId], references: [id])
+  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId    Int
 }
 
