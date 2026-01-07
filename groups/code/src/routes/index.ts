@@ -4,6 +4,7 @@ import cors from 'cors';
 import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.ts';
 import { LoginController } from '../controllers/loginController.ts';
 import { RegisterController } from '../controllers/registerController.ts';
+import { getLeaderboard } from '../controllers/leaderboardController.ts';
 
 const registerController = new RegisterController();
 
@@ -25,6 +26,8 @@ router.put('/groups/:id', cors(), updateGroup);
 router.delete('/groups/:id', cors(), deleteGroup);  
 router.post('/groups/:groupId/students/:studentId', cors(), addStudentToGroup);
 router.delete('/groups/:groupId/students/:studentId', cors(), removeStudentFromGroup);
+
+router.get('/leaderboard', cors(), getLeaderboard);
 
 router.get('/tasks/:id', cors(), getTaskById);
 router.get('/tasks', cors(), getAllTasks);
