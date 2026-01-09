@@ -1,10 +1,10 @@
 import Express, { Router } from 'express';
 import { getUnassignedStudents, getAllGroups, getGroupById, getGroupStudents, getGroupsByTeacher, createGroup, updateGroup, deleteGroup, addStudentToGroup, removeStudentFromGroup} from '../controllers/groupsController.js';
 import cors from 'cors';
-import { createTask, deleteTask, getAllTasks, getTaskById, updateTask, toggleTaskStep, completeTask } from '../controllers/tasksController.ts';
-import { LoginController } from '../controllers/loginController.ts';
-import { RegisterController } from '../controllers/registerController.ts';
-import { getLeaderboard } from '../controllers/leaderboardController.ts';
+import { createTask, deleteTask, getAllTasks, getTaskById, updateTask, toggleTaskStep, completeTask } from '../controllers/tasksController.js';
+import { LoginController } from '../controllers/loginController.js';
+import { RegisterController } from '../controllers/registerController.js';
+import { getLeaderboard } from '../controllers/leaderboardController.js';
 
 const registerController = new RegisterController();
 
