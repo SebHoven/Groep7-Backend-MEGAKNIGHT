@@ -95,7 +95,7 @@ async function main() {
       password: hashedPassword,
       name: "Admin User"
     }
-  })
+  });
   
   // Create battlepass
   const battlepass = await prisma.battlepass.create({
