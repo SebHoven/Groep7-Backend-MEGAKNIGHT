@@ -32,10 +32,12 @@ interface Task {
   date: Date;
   icon: string;
   xp: number;
-  coordinates: number;
+  completed?: boolean;
   teacherId: number; // reference to Teacher
   tasksteps?: TaskStep[];
   students?: TaskStudent[];
+  x?: number;
+  y?: number;
 }
 
 interface TaskStep {
@@ -116,7 +118,37 @@ interface BattlepassProgress {
   battlepass: Battlepass;
   student: Student;
 }
+interface Map {
+  id?: number;
+  createdAt?: Date;
+  name: string;
+  imageUrl: string;
+  states?: MapState[];
+}
+interface MapState {
+  id?: number;
+  createdAt?: Date;
+  zoom: number;
+  positionX: number;
+  positionY: number;
+  mapId: number; // reference to Map
+  map?: Map;
+}
 
-
-
-export { Teacher, Group, Student, Task, TaskStep, GroupStudent, TaskStudent, Avatar, AvatarHasItem, AvatarItem, Battlepass, BattlepassReward, BattlepassProgress };
+export {
+  Teacher,
+  Group,
+  Student,
+  Task,
+  TaskStep,
+  GroupStudent,
+  TaskStudent,
+  Avatar,
+  AvatarHasItem,
+  AvatarItem,
+  Battlepass,
+  BattlepassReward,
+  BattlepassProgress,
+  Map,
+  MapState
+};

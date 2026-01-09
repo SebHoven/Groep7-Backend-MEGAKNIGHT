@@ -19,7 +19,14 @@ interface TaskResponse {
 
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
-        const tasks = await prisma.task.findMany();
+        const tasks = await prisma.task.findMany({
+            include: {
+                tasksteps: true,
+                taskstudent: {
+                include: { student: true }
+                }
+            }
+        });
         const taskResponse: TaskResponse = {
             meta: {
                 count: tasks.length,
@@ -48,6 +55,7 @@ export const getTaskById = async (req: Request, res: Response) => {
 
 export const createTask = async (req: Request, res: Response) => {
     const taskName = req.body.name;
+    console.log(`Creating task ${req.body}`);
     
     try {
         const task = await prisma.task.create({
@@ -57,7 +65,6 @@ export const createTask = async (req: Request, res: Response) => {
                 date: req.body.date ? new Date(req.body.date) : undefined,
                 icon: req.body.icon,
                 xp: req.body.xp !== undefined ? Number(req.body.xp) : undefined,
-                coordinates: req.body.coordinates !== undefined ? Number(req.body.coordinates) : undefined,
                 teacherId: req.body.teacherId !== undefined ? Number(req.body.teacherId) : undefined,
                 tasksteps: req.body.steps && req.body.steps.length > 0 ? {
                     create: req.body.steps
@@ -67,7 +74,9 @@ export const createTask = async (req: Request, res: Response) => {
                                 completed: false
                             }))
                     }
-                    : undefined
+                    : undefined,
+                x: req.body.x !== undefined ? Number(req.body.x) : undefined,
+                y: req.body.y !== undefined ? Number(req.body.y) : undefined
             },
             include: {
                 tasksteps: true
@@ -86,13 +95,14 @@ export const updateTask = async (req: Request, res: Response) => {
             where:
                 { id: Number(id) },
             data: {
-                 name: req.body.name,
+                name: req.body.name,
                 description: req.body.description,
                 date: req.body.date ? new Date(req.body.date) : undefined,
                 icon: req.body.icon,
                 xp: req.body.xp !== undefined ? Number(req.body.xp) : undefined,
-                coordinates: req.body.coordinates !== undefined ? Number(req.body.coordinates) : undefined,
-                teacherId: req.body.teacherId !== undefined? Number(req.body.teacherId) : undefined
+                teacherId: req.body.teacherId !== undefined? Number(req.body.teacherId) : undefined,
+                x: req.body.x !== undefined ? Number(req.body.x) : undefined,
+                y: req.body.y !== undefined ? Number(req.body.y) : undefined
             }
         })
        res.status(200).json(task);
@@ -111,5 +121,67 @@ export const deleteTask = async (req: Request, res: Response) => {
        res.status(200).json(task);
     } catch (errors) {
         res.status(500).json({ error: 'kan geen taak verwijderen' });
+    }
+}
+
+export const toggleTaskStep = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const taskStepId = req.params.id;
+        const taskStep = await prisma.taskStep.findUnique({
+            where: { id: Number(taskStepId) }
+        });
+        if (!taskStep) {
+            res.status(404).json({ error: 'taskstep niet gevonden' });
+            return;
+        }
+        const updatedStep = await prisma.taskStep.update({
+            where: { id: Number(taskStepId) },
+            data: { completed: !taskStep.completed }
+        });
+        res.status(200).json(updatedStep);
+        return;
+    } catch (error) {
+        res.status(500).json({ error: 'kan taskstep niet updaten' });
+        return;
+    }
+}
+
+export const completeTask = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id;
+        // Update task to completed
+        const task = await prisma.task.update({
+            where: { id: Number(id) },
+            data: { completed: true },
+            include: {
+                taskstudent: {
+                    include: { student: true }
+                }
+            }
+        });
+        // Get students of the task
+        const students = task.taskstudent.map(ts => ts.student);
+        // Update battlepassprogresses (battlepass 1 and student 1 placeholder)
+        // Uncomment for loop later
+        //for (const student of students) {
+            const progress = await prisma.battlepassProgress.findFirst({
+                where: { studentId: 1, battlepassId: 1 }
+            });
+            if (progress) {
+                let newXp = progress.xp + (task.xp || 0);
+                let newLevel = progress.level;
+                while (newXp >= 300) {
+                    newXp -= 300;
+                    newLevel += 1;
+                }
+                await prisma.battlepassProgress.update({
+                    where: { id: progress.id },
+                    data: { xp: newXp, level: newLevel }
+                });
+            }
+        //}
+        res.status(200).json(task);
+    } catch (error) {
+        res.status(500).json({ error: 'kan taak niet voltooien' });
     }
 }
