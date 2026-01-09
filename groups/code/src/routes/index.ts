@@ -9,6 +9,7 @@ import { getLeaderboard } from '../controllers/leaderboardController.ts';
 const registerController = new RegisterController();
 
 const loginController = new LoginController();
+import mapRoutes from './maps.js';
 
 const router: Router = Express.Router();
 
@@ -43,5 +44,6 @@ router.post('/logout', cors(), loginController.logout);
 router.get('/verify', cors(), loginController.verifyToken);
 router.post('/register', cors(), registerController.register);
 
+router.use('/maps', mapRoutes);
 
 export default router;

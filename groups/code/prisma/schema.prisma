@@ -1,6 +1,9 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -35,8 +38,8 @@ model Student {
   createdAt    DateTime @default(now())
   name         String
   loginCode    String   @unique
-  group        Group?    @relation(fields: [groupId], references: [id], onDelete: SetNull)
-  groupId      Int?
+  group        Group    @relation(fields: [groupId], references: [id])
+  groupId      Int
   groupstudent GroupStudent[]
   taskstudent  TaskStudent[]
   avatar       Avatar[]
@@ -72,9 +75,9 @@ model TaskStep {
 model GroupStudent {
   id           Int       @id @default(autoincrement())
   createdAt    DateTime  @default(now())
-  group        Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  group        Group     @relation(fields: [groupId], references: [id])
   groupId      Int
-  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  student      Student   @relation(fields: [studentId], references: [id])
   studentId    Int
 }
 
@@ -150,9 +153,30 @@ model User {
   email     String    @unique
   password  String
   name      String?
+  role      String    @default("student") // "student" or "teacher"
   lastLogin DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
   @@map("users")
+}
+
+model Map {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name      String
+  imageUrl  String
+
+  states    MapState[]
+}
+
+model MapState {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  zoom      Float    @default(1)
+  positionX Float    @default(0)
+  positionY Float    @default(0)
+
+  mapId Int @unique
+  map   Map @relation(fields: [mapId], references: [id], onDelete: Cascade)
 }

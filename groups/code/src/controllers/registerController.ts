@@ -1,4 +1,3 @@
-// src/controllers/registerController.ts
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
@@ -8,7 +7,7 @@ const prisma = new PrismaClient();
 export class RegisterController {
   async register(req: Request, res: Response): Promise<Response> {
     try {
-      const { email, password, name } = req.body;
+      const { email, password, name, role } = req.body;
 
       // Validate input
       if (!email || !password) {
@@ -17,6 +16,10 @@ export class RegisterController {
           message: 'Email and password are required'
         });
       }
+
+      // Validate role
+      const validRoles = ['student', 'teacher'];
+      const userRole = role && validRoles.includes(role) ? role : 'student';
 
       // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -56,12 +59,14 @@ export class RegisterController {
         data: {
           email: email.toLowerCase(),
           password: hashedPassword,
-          name: name || null
+          name: name || null,
+          role: userRole
         },
         select: {
           id: true,
           email: true,
           name: true,
+          role: true,
           createdAt: true
         }
       });

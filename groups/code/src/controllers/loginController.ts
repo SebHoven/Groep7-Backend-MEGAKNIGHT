@@ -5,23 +5,11 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// User interface matching Prisma schema
-interface User {
-  id: string;
-  email: string;
-  password: string;
-  name?: string | null;
-}
-
 export class LoginController {
-  /**
-   * Handle user login
-   */
   async login(req: Request, res: Response): Promise<Response> {
     try {
       const { email, password } = req.body;
 
-      // Validate input
       if (!email || !password) {
         return res.status(400).json({
           success: false,
@@ -29,7 +17,6 @@ export class LoginController {
         });
       }
 
-      // Validate email format
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return res.status(400).json({
@@ -38,14 +25,14 @@ export class LoginController {
         });
       }
 
-      // Find user by email using Prisma
       const user = await prisma.user.findUnique({
         where: { email: email.toLowerCase() },
         select: {
           id: true,
           email: true,
           password: true,
-          name: true
+          name: true,
+          role: true  // Include role
         }
       });
       
@@ -56,7 +43,6 @@ export class LoginController {
         });
       }
 
-      // Verify password
       const isPasswordValid = await bcrypt.compare(password, user.password);
       
       if (!isPasswordValid) {
@@ -66,23 +52,21 @@ export class LoginController {
         });
       }
 
-      // Generate JWT token
       const token = jwt.sign(
         { 
           userId: user.id, 
-          email: user.email 
+          email: user.email,
+          role: user.role  // Include role in token
         },
         process.env.JWT_SECRET!,
         { expiresIn: '24h' }
       );
 
-      // Update last login timestamp
       await prisma.user.update({
         where: { id: user.id },
         data: { lastLogin: new Date() }
       });
 
-      // Return success response (don't send password)
       return res.status(200).json({
         success: true,
         message: 'Login successful',
@@ -91,7 +75,8 @@ export class LoginController {
           user: {
             id: user.id,
             email: user.email,
-            name: user.name
+            name: user.name,
+            role: user.role  // Return role
           }
         }
       });
@@ -105,12 +90,8 @@ export class LoginController {
     }
   }
 
-  /**
-   * Handle user logout (if using token blacklist)
-   */
   async logout(req: Request, res: Response): Promise<Response> {
     try {
-
       return res.status(200).json({
         success: true,
         message: 'Logout successful'
@@ -124,9 +105,6 @@ export class LoginController {
     }
   }
 
-  /**
-   * Verify JWT token
-   */
   async verifyToken(req: Request, res: Response): Promise<Response> {
     try {
       const token = req.headers.authorization?.split(' ')[1];
@@ -138,11 +116,11 @@ export class LoginController {
         });
       }
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; email: string };
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string; email: string; role: string };
 
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
-        select: { id: true, email: true, name: true }
+        select: { id: true, email: true, name: true, role: true }
       });
 
       if (!user) {
@@ -157,7 +135,8 @@ export class LoginController {
         data: {
           userId: user.id,
           email: user.email,
-          name: user.name
+          name: user.name,
+          role: user.role
         }
       });
     } catch (error) {
@@ -169,5 +148,4 @@ export class LoginController {
   }
 }
 
-// Export instance
 export default new LoginController();
