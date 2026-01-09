@@ -99,11 +99,11 @@ async function main() {
   // Note: Don't explicitly set groupId, let it default to null
   const unassignedStudents = await prisma.student.createMany({
     data: [
-      { name: "Emma Wilson", loginCode: "EW111", groupId: 1 },
-      { name: "Oliver Davis", loginCode: "OD222", groupId: 1 },
-      { name: "Sophia Martinez", loginCode: "SM333", groupId: 1 },
-      { name: "Lucas Garcia", loginCode: "LG444", groupId: 1 },
-      { name: "Mia Rodriguez", loginCode: "MR555", groupId: 1 }
+      { name: "Emma Wilson", loginCode: "EW111", groupId: null },
+      { name: "Oliver Davis", loginCode: "OD222", groupId: null },
+      { name: "Sophia Martinez", loginCode: "SM333", groupId: null },
+      { name: "Lucas Garcia", loginCode: "LG444", groupId: null },
+      { name: "Mia Rodriguez", loginCode: "MR555", groupId: null }
     ]
   })
 
@@ -118,19 +118,19 @@ async function main() {
     }
   })
 
-  // Get students and assign BattlepassProgress
-  const students = teacher.groups.flatMap(group => group.students);
+  const allStudents = [...teacher.groups.flatMap(g => g.students)];
 
-  await prisma.battlepassProgress.createMany({
-    data: students.map((student, index) => ({
-      studentId: student.id,
-      battlepassId: battlepass.id,
-
-      // Random xp and levels
-      level: Math.floor(index / 2) + 1,
-      xp: 100 + index * 50
-    }))
-  });
+  for (let i = 0; i < allStudents.length; i++) {
+    const student = allStudents[i];
+    await prisma.battlepassProgress.create({
+      data: {
+        studentId: student.id!,
+        battlepassId: battlepass.id,
+        level: Math.floor(i / 2) + 1,
+        xp: 100 + i * 50
+      }
+    });
+  }
 
   console.log("Seeded teacher with groups and students:", teacher)
 }
