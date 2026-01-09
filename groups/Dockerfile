@@ -16,9 +16,6 @@ COPY code/prisma ./prisma
 # Explicitly tell Prisma where schema is to avoid "schema not found" errors
 RUN npx prisma generate --schema ./prisma/schema.prisma
 
-# 4.5 Apply database migrations (PRODUCTION)
-RUN npx prisma migrate deploy --schema ./prisma/schema.prisma
-
 # 5. Copy TypeScript source code
 COPY code/src ./src
 
