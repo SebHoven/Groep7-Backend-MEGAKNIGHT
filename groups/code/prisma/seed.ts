@@ -106,31 +106,12 @@ async function main() {
     }
   })
 
-  const unassignedStudents: { id: number; name: string; loginCode: string; groupId: number | null }[] = [];
-
-  const unassignedData = [
-    { name: "Emma Wilson", loginCode: "EW111", groupId: null },
-    { name: "Oliver Davis", loginCode: "OD222", groupId: null },
-    { name: "Sophia Martinez", loginCode: "SM333", groupId: null },
-    { name: "Lucas Garcia", loginCode: "LG444", groupId: null },
-    { name: "Mia Rodriguez", loginCode: "MR555", groupId: null }
-  ];
-
-  for (const s of unassignedData) {
-    const student = await prisma.student.create({ data: s });
-    unassignedStudents.push(student);
-  }
-  
-  const allStudents = [
-    ...teacher.groups.flatMap(g => g.students),
-    ...unassignedStudents
-  ];
-
-  for (let i = 0; i < allStudents.length; i++) {
-    const student = allStudents[i];
+  // Now create battlepassProgress
+  for (let i = 0; i < studentsToAssign.length; i++) {
+    const student = studentsToAssign[i];
     await prisma.battlepassProgress.create({
       data: {
-        studentId: student.id!,
+        studentId: student.id,
         battlepassId: battlepass.id,
         level: Math.floor(i / 2) + 1,
         xp: 100 + i * 50
