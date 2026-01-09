@@ -12,7 +12,6 @@
     "noImplicitOverride": true,
     "noImplicitReturns": true,
     "removeComments": true,
-    "outDir": "./build/",
     // "esModuleInterop": true,
     "declaration": true,
     "emitDeclarationOnly": false
