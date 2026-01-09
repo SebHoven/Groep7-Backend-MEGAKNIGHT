@@ -1,10 +1,10 @@
 import Express, { Router } from 'express';
 import { getUnassignedStudents, getAllGroups, getGroupById, getGroupStudents, getGroupsByTeacher, createGroup, updateGroup, deleteGroup, addStudentToGroup, removeStudentFromGroup} from '../controllers/groupsController.js';
 import cors from 'cors';
-import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.js';
-import { LoginController } from '../controllers/loginController.js';
-import { RegisterController } from '../controllers/registerController.js';
-import { getLeaderboard } from '../controllers/leaderboardController.js';
+import { createTask, deleteTask, getAllTasks, getTaskById, updateTask, toggleTaskStep, completeTask } from '../controllers/tasksController.ts';
+import { LoginController } from '../controllers/loginController.ts';
+import { RegisterController } from '../controllers/registerController.ts';
+import { getLeaderboard } from '../controllers/leaderboardController.ts';
 
 const registerController = new RegisterController();
 
@@ -35,6 +35,9 @@ router.get('/tasks', cors(), getAllTasks);
 router.post('/tasks', cors(), createTask);
 router.put('/tasks/:id', cors(), updateTask);
 router.delete('/tasks/:id', cors(), deleteTask);
+router.put('/tasks/:id/complete', cors(), completeTask);
+
+router.put('/tasksteps/:id/toggle', cors(), toggleTaskStep);
 
 router.post('/login', cors(), loginController.login);
 router.post('/logout', cors(), loginController.logout);

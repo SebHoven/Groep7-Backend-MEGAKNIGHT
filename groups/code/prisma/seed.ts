@@ -99,11 +99,11 @@ async function main() {
   // Note: Don't explicitly set groupId, let it default to null
   const unassignedStudents = await prisma.student.createMany({
     data: [
-      { name: "Emma Wilson", loginCode: "EW111" },
-      { name: "Oliver Davis", loginCode: "OD222" },
-      { name: "Sophia Martinez", loginCode: "SM333"},
-      { name: "Lucas Garcia", loginCode: "LG444"},
-      { name: "Mia Rodriguez", loginCode: "MR555" }
+      { name: "Emma Wilson", loginCode: "EW111", groupId: 1 },
+      { name: "Oliver Davis", loginCode: "OD222", groupId: 1 },
+      { name: "Sophia Martinez", loginCode: "SM333", groupId: 1 },
+      { name: "Lucas Garcia", loginCode: "LG444", groupId: 1 },
+      { name: "Mia Rodriguez", loginCode: "MR555", groupId: 1 }
     ]
   })
 

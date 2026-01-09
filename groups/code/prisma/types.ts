@@ -32,6 +32,7 @@ interface Task {
   date: Date;
   icon: string;
   xp: number;
+  completed?: boolean;
   teacherId: number; // reference to Teacher
   tasksteps?: TaskStep[];
   students?: TaskStudent[];
