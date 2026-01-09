@@ -1,14 +1,15 @@
 import Express, { Router } from 'express';
 import { getUnassignedStudents, getAllGroups, getGroupById, getGroupStudents, getGroupsByTeacher, createGroup, updateGroup, deleteGroup, addStudentToGroup, removeStudentFromGroup} from '../controllers/groupsController.js';
 import cors from 'cors';
-import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.ts';
-import { LoginController } from '../controllers/loginController.ts';
-import { RegisterController } from '../controllers/registerController.ts';
-import { getLeaderboard } from '../controllers/leaderboardController.ts';
+import { createTask, deleteTask, getAllTasks, getTaskById, updateTask } from '../controllers/tasksController.js';
+import { LoginController } from '../controllers/loginController.js';
+import { RegisterController } from '../controllers/registerController.js';
+import { getLeaderboard } from '../controllers/leaderboardController.js';
 
 const registerController = new RegisterController();
 
 const loginController = new LoginController();
+import mapRoutes from './maps.js';
 
 const router: Router = Express.Router();
 
@@ -40,5 +41,6 @@ router.post('/logout', cors(), loginController.logout);
 router.get('/verify', cors(), loginController.verifyToken);
 router.post('/register', cors(), registerController.register);
 
+router.use('/maps', mapRoutes);
 
 export default router;
