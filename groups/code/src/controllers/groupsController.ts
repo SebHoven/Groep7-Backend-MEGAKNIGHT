@@ -15,6 +15,15 @@ interface TeacherResponse {
   data: Teacher[]
 }
 
+interface GroupResponse {
+    meta: {
+        count: number
+        title: string
+        url: string
+    },
+    data: any[]
+}
+
 /**
  * Get all groups
  */
