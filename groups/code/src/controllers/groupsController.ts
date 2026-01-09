@@ -1,18 +1,18 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { Group } from '../prisma/types.js';
+import { Teacher} from '../prisma/types.js';
 const prisma: PrismaClient = new PrismaClient();
 
 /**
  * Interface for the response object
  */
-interface GroupResponse {
-    meta: {
-        count: number
-        title: string
-        url: string
-    },
-    data: any[]
+interface TeacherResponse {
+  meta: {
+    count: number
+    title: string
+    url: string
+  },
+  data: Teacher[]
 }
 
 /**
@@ -63,9 +63,9 @@ export const getGroupById = async (req: Request, res: Response) => {
             return res.status(404).json({ error: 'groep niet gevonden' });
         }
         
-        res.status(200).json(group);
+        return res.status(200).json(group);
     } catch (errors) {
-        res.status(500).json({ error: 'kan je groep niet vinden' });
+        return res.status(500).json({ error: 'kan je groep niet vinden' });
     }
 };
 
@@ -91,14 +91,14 @@ export const getGroupStudents = async (req: Request, res: Response) => {
             return res.status(404).json({ error: 'groep niet gevonden' });
         }
         
-        res.status(200).json({
+        return res.status(200).json({
             groupId: group.id,
             groupName: group.name,
             studentCount: group.students.length,
             students: group.students
         });
     } catch (errors) {
-        res.status(500).json({ error: 'kan studenten niet vinden' });
+        return res.status(500).json({ error: 'kan studenten niet vinden' });
     }
 };
 

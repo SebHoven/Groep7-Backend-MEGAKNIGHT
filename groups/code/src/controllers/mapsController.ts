@@ -27,9 +27,9 @@ export const uploadMap = async (req: Request, res: Response) => {
       }
     });
 
-    res.status(200).json(map);
+    return res.status(200).json(map);
   } catch (err) {
-    res.status(500).json({ error: 'Kan map niet opslaan', details: err });
+    return res.status(500).json({ error: 'Kan map niet opslaan', details: err });
   }
 };
 
