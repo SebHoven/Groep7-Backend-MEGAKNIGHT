@@ -4,15 +4,6 @@ import bcrypt from 'bcrypt'
 
 async function main() {
 
-  // Create a battlepass
-  const battlepass = await prisma.battlepass.create({
-    data: {
-      name: "Season 1",
-      startDate: new Date("2025-01-01"),
-      endDate: new Date("2025-06-01")
-    }
-  });
-
   // Create a teacher
   const teacher = await prisma.teacher.create({
     data: {
@@ -105,13 +96,20 @@ async function main() {
       name: "Admin User"
     }
   })
+  
+  // Create battlepass
+  const battlepass = await prisma.battlepass.create({
+    data: { name: 'Season 1', startDate: new Date(), endDate: new Date() }
+  });
 
-  // Now create battlepassProgress
-  for (let i = 0; i < studentsToAssign.length; i++) {
-    const student = studentsToAssign[i];
+  // Fetch all students after teacher creation
+  const students = await prisma.student.findMany();
+
+  // Create battlepassProgress for all students
+  for (let i = 0; i < students.length; i++) {
     await prisma.battlepassProgress.create({
       data: {
-        studentId: student.id,
+        studentId: students[i].id,
         battlepassId: battlepass.id,
         level: Math.floor(i / 2) + 1,
         xp: 100 + i * 50
