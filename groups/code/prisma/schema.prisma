@@ -54,7 +54,8 @@ model Task {
   date         DateTime?
   icon         String?
   xp           Int?
-  coordinates  Float?
+  x            Float?
+  y            Float?
   completed    Boolean  @default(false)
   teacher      Teacher   @relation(fields: [teacherId], references: [id])
   teacherId    Int
@@ -145,4 +146,37 @@ model BattlepassProgress {
   battlepass   Battlepass @relation(fields: [battlepassId], references: [id])
   student      Student   @relation(fields: [studentId], references: [id])
   studentId    Int
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  name      String?
+  role      String    @default("student") // "student" or "teacher"
+  lastLogin DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Map {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name      String
+  imageUrl  String
+
+  states    MapState[]
+}
+
+model MapState {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  zoom      Float    @default(1)
+  positionX Float    @default(0)
+  positionY Float    @default(0)
+
+  mapId Int @unique
+  map   Map @relation(fields: [mapId], references: [id], onDelete: Cascade)
 }
