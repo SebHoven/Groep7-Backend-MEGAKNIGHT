@@ -95,18 +95,6 @@ async function main() {
     })
   }
 
-  // Create some unassigned students (not in any group yet)
-  // Note: Don't explicitly set groupId, let it default to null
-  const unassignedStudents = await prisma.student.createMany({
-    data: [
-      { name: "Emma Wilson", loginCode: "EW111", groupId: null },
-      { name: "Oliver Davis", loginCode: "OD222", groupId: null },
-      { name: "Sophia Martinez", loginCode: "SM333", groupId: null },
-      { name: "Lucas Garcia", loginCode: "LG444", groupId: null },
-      { name: "Mia Rodriguez", loginCode: "MR555", groupId: null }
-    ]
-  })
-
   const hashedPassword = await bcrypt.hash('password123', 10)
 
   // Create a user for login
@@ -118,7 +106,25 @@ async function main() {
     }
   })
 
-  const allStudents = [...teacher.groups.flatMap(g => g.students)];
+  const unassignedStudents: { id: number; name: string; loginCode: string; groupId: number | null }[] = [];
+
+  const unassignedData = [
+    { name: "Emma Wilson", loginCode: "EW111", groupId: null },
+    { name: "Oliver Davis", loginCode: "OD222", groupId: null },
+    { name: "Sophia Martinez", loginCode: "SM333", groupId: null },
+    { name: "Lucas Garcia", loginCode: "LG444", groupId: null },
+    { name: "Mia Rodriguez", loginCode: "MR555", groupId: null }
+  ];
+
+  for (const s of unassignedData) {
+    const student = await prisma.student.create({ data: s });
+    unassignedStudents.push(student);
+  }
+  
+  const allStudents = [
+    ...teacher.groups.flatMap(g => g.students),
+    ...unassignedStudents
+  ];
 
   for (let i = 0; i < allStudents.length; i++) {
     const student = allStudents[i];
