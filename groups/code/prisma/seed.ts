@@ -3,6 +3,7 @@ const prisma = new PrismaClient()
 import bcrypt from 'bcrypt'
 
 async function main() {
+  const hashedPassword = await bcrypt.hash('password123', 10);
 
   // Create a battlepass
   const battlepass = await prisma.battlepass.create({
@@ -13,43 +14,55 @@ async function main() {
     }
   });
 
-  // Create a teacher
-  const teacher = await prisma.teacher.create({
+  // Create a teacher user with linked Teacher record
+  const teacherUser = await prisma.user.create({
     data: {
-      name: "Alice Johnson",
       email: "alice@example.com",
-      password: "password123",
-      groups: {
-        create: [
-          {
-            name: "Math Group",
-            students: {
-              create: [
-                { name: "John Doe", loginCode: "JD123" },
-                { name: "Jane Smith", loginCode: "JS456" }
-              ]
-            }
-          },
-          {
-            name: "Science Group",
-            students: {
-              create: [
-                { name: "Tom Brown", loginCode: "TB789" },
-                { name: "Sara White", loginCode: "SW101" }
-              ]
-            }
+      password: hashedPassword,
+      name: "Alice Johnson",
+      role: "teacher",
+      teacher: {
+        create: {
+          name: "Alice Johnson",
+          groups: {
+            create: [
+              {
+                name: "Math Group",
+                students: {
+                  create: [
+                    { name: "John Doe" },
+                    { name: "Jane Smith" }
+                  ]
+                }
+              },
+              {
+                name: "Science Group",
+                students: {
+                  create: [
+                    { name: "Tom Brown" },
+                    { name: "Sara White" }
+                  ]
+                }
+              }
+            ]
           }
-        ]
+        }
       }
     },
     include: {
-      groups: {
+      teacher: {
         include: {
-          students: true
+          groups: {
+            include: {
+              students: true
+            }
+          }
         }
       }
     }
-  })
+  });
+
+  const teacher = teacherUser.teacher!;
 
   const task = await prisma.task.create({
     data: {
@@ -78,13 +91,13 @@ async function main() {
       x: 150,
       y: 300
     },
-  })
+  });
 
   const studentsToAssign = [
     teacher.groups[0].students[0],
     teacher.groups[0].students[1],
     teacher.groups[1].students[0]
-  ]
+  ];
 
   for (const student of studentsToAssign) {
     await prisma.taskStudent.create({
@@ -92,31 +105,29 @@ async function main() {
         taskId: task.id,
         studentId: student.id
       }
-    })
+    });
   }
 
-  // Create some unassigned students (not in any group yet)
-  // Note: Don't explicitly set groupId, let it default to null
-  const unassignedStudents = await prisma.student.createMany({
+  // Create some unassigned students (not in any group)
+  await prisma.student.createMany({
     data: [
-      { name: "Emma Wilson", loginCode: "EW111", groupId: 1 },
-      { name: "Oliver Davis", loginCode: "OD222", groupId: 1 },
-      { name: "Sophia Martinez", loginCode: "SM333", groupId: 1 },
-      { name: "Lucas Garcia", loginCode: "LG444", groupId: 1 },
-      { name: "Mia Rodriguez", loginCode: "MR555", groupId: 1 }
+      { name: "Emma Wilson" },
+      { name: "Oliver Davis" },
+      { name: "Sophia Martinez" },
+      { name: "Lucas Garcia" },
+      { name: "Mia Rodriguez" }
     ]
-  })
+  });
 
-  const hashedPassword = await bcrypt.hash('password123', 10)
-
-  // Create a user for login
-  const user = await prisma.user.create({
+  // Create an admin user (without teacher/student)
+  await prisma.user.create({
     data: {
       email: "admin@example.com",
       password: hashedPassword,
-      name: "Admin User"
+      name: "Admin User",
+      role: "teacher"
     }
-  })
+  });
 
   // Get students and assign BattlepassProgress
   const students = teacher.groups.flatMap(group => group.students);
@@ -125,14 +136,12 @@ async function main() {
     data: students.map((student, index) => ({
       studentId: student.id,
       battlepassId: battlepass.id,
-
-      // Random xp and levels
       level: Math.floor(index / 2) + 1,
       xp: 100 + index * 50
     }))
   });
 
-  console.log("Seeded teacher with groups and students:", teacher)
+  console.log("Seeded teacher with groups and students:", teacherUser);
 }
 
 main()
