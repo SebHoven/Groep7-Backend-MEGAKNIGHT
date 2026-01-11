@@ -135,7 +135,7 @@ async function main() {
         studentId: students[i].id,
         battlepassId: battlepass.id,
         level: Math.floor(i / 2) + 1,
-        xp: 100 + i * 5
+        xp: 100 + i * 50
       }
     });
   }

@@ -37,7 +37,8 @@ model Student {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
   name         String
-  group        Group?   @relation(fields: [groupId], references: [id])
+  loginCode    String   @unique
+  group        Group?    @relation(fields: [groupId], references: [id])
   groupId      Int?
   groupstudent GroupStudent[]
   taskstudent  TaskStudent[]
