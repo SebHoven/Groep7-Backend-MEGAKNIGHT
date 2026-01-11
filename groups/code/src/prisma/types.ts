@@ -1,8 +1,8 @@
 interface Teacher {
   id?: number;
   createdAt?: Date;
-  name?: string;
-  userId?: string; // Link to User
+  name: string;
+  email: string;
 }
 
 interface Group {
@@ -17,8 +17,8 @@ interface Student {
   id?: number;
   createdAt?: Date;
   name: string;
-  groupId?: number; // Made optional
-  userId?: string; // Link to User
+  loginCode: string; // used instead of email/password
+  groupId: number;   // reference to Group
   tasks?: TaskStudent[];
   groups?: GroupStudent[];
   avatar?: Avatar[];
@@ -135,19 +135,6 @@ interface MapState {
   map?: Map;
 }
 
-interface User {
-  id?: string;
-  email: string;
-  password: string;
-  name?: string;
-  role: string; // "student" or "teacher"
-  lastLogin?: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
-  teacher?: Teacher;
-  student?: Student;
-}
-
 export {
   Teacher,
   Group,
@@ -163,6 +150,5 @@ export {
   BattlepassReward,
   BattlepassProgress,
   Map,
-  MapState,
-  User
+  MapState
 };
