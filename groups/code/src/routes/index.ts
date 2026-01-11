@@ -1,7 +1,7 @@
 import Express, { Router } from 'express';
 import { getUnassignedStudents, getAllGroups, getGroupById, getGroupStudents, getGroupsByTeacher, createGroup, updateGroup, deleteGroup, addStudentToGroup, removeStudentFromGroup} from '../controllers/groupsController.js';
 import cors from 'cors';
-import { createTask, deleteTask, getAllTasks, getTaskById, updateTask, toggleTaskStep, completeTask } from '../controllers/tasksController.js';
+import { createTask, deleteTask, getAllTasks, getTaskById, updateTask, toggleTaskStep, completeTask, assignStudentsToTask, removeStudentFromTask } from '../controllers/tasksController.js';
 import { LoginController } from '../controllers/loginController.js';
 import { RegisterController } from '../controllers/registerController.js';
 import { getLeaderboard } from '../controllers/leaderboardController.js';
@@ -27,6 +27,9 @@ router.put('/groups/:id', cors(), updateGroup);
 router.delete('/groups/:id', cors(), deleteGroup);  
 router.post('/groups/:groupId/students/:studentId', cors(), addStudentToGroup);
 router.delete('/groups/:groupId/students/:studentId', cors(), removeStudentFromGroup);
+
+router.post('/tasks/:taskId/students', assignStudentsToTask);
+router.delete('/tasks/:taskId/students/:studentId', removeStudentFromTask);
 
 router.get('/leaderboard', cors(), getLeaderboard);
 
