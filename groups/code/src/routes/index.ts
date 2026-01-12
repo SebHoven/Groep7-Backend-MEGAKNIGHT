@@ -5,6 +5,7 @@ import { createTask, deleteTask, getAllTasks, getTaskById, updateTask, toggleTas
 import { LoginController } from '../controllers/loginController.js';
 import { RegisterController } from '../controllers/registerController.js';
 import { getLeaderboard } from '../controllers/leaderboardController.js';
+import { createAvatar, getAvatar } from '../controllers/avatarController.js';
 
 const registerController = new RegisterController();
 
@@ -38,6 +39,10 @@ router.delete('/tasks/:id', cors(), deleteTask);
 router.put('/tasks/:id/complete', cors(), completeTask);
 
 router.put('/tasksteps/:id/toggle', cors(), toggleTaskStep);
+
+router.get('/avatar', cors(), getAvatar);
+router.post('/avatar', cors(), createAvatar);
+
 
 router.post('/login', cors(), loginController.login);
 router.post('/logout', cors(), loginController.logout);

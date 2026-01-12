@@ -75,8 +75,20 @@ interface AvatarHasItem {
   createdAt?: Date;
   avatarId: number; //reference to Avatar
   avatar: Avatar;
-  avatarItemId: number; // reference to AvatarItem
-  avatarItem: AvatarItem;
+  hairColorId: number;
+  hairColor: AvatarItem;
+
+  bodyItemId: number;
+  bodyItem: AvatarItem;
+
+  legsItemId: number;
+  legsItem: AvatarItem;
+
+  feetItemId: number;
+  feetItem: AvatarItem;
+
+  skinColorId: number;
+  skinColor: AvatarItem;
 }
 
 interface AvatarItem {
@@ -85,6 +97,11 @@ interface AvatarItem {
   slot: number;
   name: string;
   texture: string;
+  hairColor: Avatar[];
+  bodyItem: Avatar[];
+  legsItem: Avatar[];
+  feetItem: Avatar[];
+  skinColor: Avatar[];
   avatarHasItem: AvatarHasItem[];
 }
 
