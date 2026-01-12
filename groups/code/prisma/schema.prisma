@@ -95,8 +95,17 @@ model Avatar {
   id           Int       @id @default(autoincrement())
   createdAt    DateTime  @default(now())
   student      Student   @relation(fields: [studentId], references: [id])
+  hairColor    AvatarItem @relation("Hair", fields: [hairColorId], references: [id])    
+  hairColorId  Int 
+  bodyItem     AvatarItem @relation("Body", fields: [bodyItemId], references: [id])
+  bodyItemId   Int
+  legsItem     AvatarItem @relation("Leg", fields: [legsItemId], references: [id])
+  legsItemId   Int
+  feetItem     AvatarItem @relation("Feet", fields: [feetItemId], references: [id])
+  feetItemId   Int
+  skinColor    AvatarItem @relation("Skin", fields: [skinColorId], references: [id])
+  skinColorId  Int
   studentId    Int       
-  avatarItem   AvatarItemHasAvatar[]
 }
 
 model AvatarItem {
@@ -105,17 +114,12 @@ model AvatarItem {
   slot         Int 
   name         String
   texture      String
-  avatarItem   AvatarItemHasAvatar[]
-  battlepassReward BattlepassReward[]
-}
-
-model AvatarItemHasAvatar {
-  id           Int       @id @default(autoincrement())
-  createdAt    DateTime  @default(now())
-  avatar       Avatar    @relation(fields: [avatarId], references: [id])
-  avatarId     Int
-  avataritem   AvatarItem @relation(fields: [avatarItemId], references: [id])
-  avatarItemId Int
+  hairColor    Avatar[] @relation("Hair")
+  bodyItem     Avatar[] @relation("Body")
+  legsItem     Avatar[] @relation("Leg")
+  feetItem     Avatar[] @relation("Feet")
+  skinColor    Avatar[] @relation("Skin")
+  battlepassRewards BattlepassReward[]
 }
 
 model Battlepass {
