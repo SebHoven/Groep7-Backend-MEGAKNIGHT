@@ -5,15 +5,6 @@ import bcrypt from 'bcrypt'
 async function main() {
   const hashedPassword = await bcrypt.hash('password123', 10);
 
-  // Create a battlepass
-  const battlepass = await prisma.battlepass.create({
-    data: {
-      name: "Season 1",
-      startDate: new Date("2025-01-01"),
-      endDate: new Date("2025-06-01")
-    }
-  });
-
   // Create a teacher user with linked Teacher record
   const teacherUser = await prisma.user.create({
     data: {
@@ -128,18 +119,26 @@ async function main() {
       role: "teacher"
     }
   });
-
-  // Get students and assign BattlepassProgress
-  const students = teacher.groups.flatMap(group => group.students);
-
-  await prisma.battlepassProgress.createMany({
-    data: students.map((student, index) => ({
-      studentId: student.id,
-      battlepassId: battlepass.id,
-      level: Math.floor(index / 2) + 1,
-      xp: 100 + index * 50
-    }))
+  
+  // Create battlepass
+  const battlepass = await prisma.battlepass.create({
+    data: { name: 'Season 1', startDate: new Date(), endDate: new Date() }
   });
+
+  // Fetch all students after teacher creation
+  const students = await prisma.student.findMany();
+
+  // Create battlepassProgress for all students
+  for (let i = 0; i < students.length; i++) {
+    await prisma.battlepassProgress.create({
+      data: {
+        studentId: students[i].id,
+        battlepassId: battlepass.id,
+        level: Math.floor(i / 2) + 1,
+        xp: 100 + i * 5
+      }
+    });
+  }
 
   console.log("Seeded teacher with groups and students:", teacherUser);
 }

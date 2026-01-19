@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { BattlepassProgress, Student } from '../../prisma/types.ts';
+import { BattlepassProgress, Student } from '../prisma/types.js';
 const prisma: PrismaClient = new PrismaClient();
 
 interface LeaderboardResponse {
