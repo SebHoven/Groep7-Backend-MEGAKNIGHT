@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  name         String
+  description  String?
+  date         DateTime?
+  icon         String?
+  xp           Int?
+  x            Float?
+  y            Float?
+  completed    Boolean   @default(false)
+  teacherId    Int
+  tasksteps    TaskStep[]
+  taskstudent  TaskStudent[]
+}
+
+model TaskStep {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  text         String
+  completed    Boolean   @default(false)
+  task         Task      @relation(fields: [taskId], references: [id])
+  taskId       Int
+}
+
+model TaskStudent {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  taskId       Int
+  studentId    Int
+  task         Task      @relation(fields: [taskId], references: [id])
+}

@@ -51,35 +51,6 @@ async function main() {
     }
   })
 
-  const task = await prisma.task.create({
-    data: {
-      name: 'kan je koppen??',
-      description: 'rode kaart pakken',
-      date: new Date(2025, 6, 4),
-      icon: '🫃🟥',
-      xp: 67,
-      teacherId: teacher.id,
-      tasksteps: {
-        create: [
-          {
-            text: 'Ga naar het veld',
-            completed: false
-          },
-          {
-            text: 'Pak de rode kaart',
-            completed: false
-          },
-          {
-            text: 'Koppen',
-            completed: false
-          }
-        ]
-      },
-      x: 150,
-      y: 300
-    },
-  })
-
   const studentsToAssign = [
     teacher.groups[0].students[0],
     teacher.groups[0].students[1],

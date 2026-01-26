@@ -9,7 +9,19 @@ services:
     ports:
       - "3012:3012"
     working_dir: /usr/src/app
-    command: npm run dev
+    command: sh -c "npm install && npx prisma generate && npm run dev"
+    
+  tasks:
+    container_name: tasks
+    build: ./tasks
+    volumes:
+      - ./tasks/code:/usr/src/app
+    networks:
+      - schoolyard
+    ports:
+      - "3013:3013"
+    working_dir: /usr/src/app  
+    command: sh -c "npm install && npx prisma generate && npm run dev"
 
 networks:
   schoolyard:

@@ -3,9 +3,6 @@ import { PrismaClient } from '@prisma/client';
 import { Task } from '../prisma/types.js';
 const prisma: PrismaClient = new PrismaClient();
 
-/**
- * Interface for the response object
- */
 interface TaskResponse {
     meta: {
         count: number
@@ -15,16 +12,12 @@ interface TaskResponse {
     data: Task[]
 }
 
-
-
 export const getAllTasks = async (req: Request, res: Response) => {
     try {
         const tasks = await prisma.task.findMany({
             include: {
                 tasksteps: true,
-                taskstudent: {
-                    include: { student: true }
-                }
+                taskstudent: true // Remove the nested student include
             }
         });
         const taskResponse: TaskResponse = {
@@ -48,9 +41,7 @@ export const getTaskById = async (req: Request, res: Response) => {
             where: { id: Number(id) },
             include: {
                 tasksteps: true,
-                taskstudent: {
-                    include: { student: true }
-                }
+                taskstudent: true // Remove the nested student include
             }
         });
         res.status(200).json(tasks);
@@ -60,9 +51,6 @@ export const getTaskById = async (req: Request, res: Response) => {
 }
 
 export const createTask = async (req: Request, res: Response) => {
-    const taskName = req.body.name;
-    console.log(`Creating task ${req.body}`);
-    
     try {
         const task = await prisma.task.create({
             data: { 
@@ -83,7 +71,6 @@ export const createTask = async (req: Request, res: Response) => {
                     : undefined,
                 x: req.body.x !== undefined ? Number(req.body.x) : undefined,
                 y: req.body.y !== undefined ? Number(req.body.y) : undefined,
-                // Create TaskStudent relationships for assigned students
                 taskstudent: req.body.assignees && req.body.assignees.length > 0 ? {
                     create: req.body.assignees.map((studentId: number) => ({
                         studentId: Number(studentId)
@@ -92,9 +79,7 @@ export const createTask = async (req: Request, res: Response) => {
             },
             include: {
                 tasksteps: true,
-                taskstudent: {
-                    include: { student: true }
-                }
+                taskstudent: true
             }
         })
         res.status(200).json(task);
@@ -108,14 +93,11 @@ export const updateTask = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
         
-        // If assignees are provided, update the TaskStudent relationships
         if (req.body.assignees !== undefined) {
-            // Delete existing TaskStudent relationships
             await prisma.taskStudent.deleteMany({
                 where: { taskId: Number(id) }
             });
             
-            // Create new TaskStudent relationships
             if (req.body.assignees.length > 0) {
                 await prisma.taskStudent.createMany({
                     data: req.body.assignees.map((studentId: number) => ({
@@ -140,9 +122,7 @@ export const updateTask = async (req: Request, res: Response) => {
             },
             include: {
                 tasksteps: true,
-                taskstudent: {
-                    include: { student: true }
-                }
+                taskstudent: true
             }
         })
        res.status(200).json(task);
@@ -156,7 +136,6 @@ export const deleteTask = async (req: Request, res: Response) => {
      try {
         const id = req.params.id;
         
-        // Delete TaskStudent relationships first (if cascade is not set)
         await prisma.taskStudent.deleteMany({
             where: { taskId: Number(id) }
         });
@@ -186,67 +165,24 @@ export const toggleTaskStep = async (req: Request, res: Response): Promise<void>
             data: { completed: !taskStep.completed }
         });
         res.status(200).json(updatedStep);
-        return;
     } catch (error) {
         res.status(500).json({ error: 'kan taskstep niet updaten' });
-        return;
     }
 }
 
+// REMOVE completeTask - battlepass logic should be in groups service
 export const completeTask = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
-        // Update task to completed
         const task = await prisma.task.update({
             where: { id: Number(id) },
             data: { completed: true },
             include: {
-                taskstudent: {
-                    include: { student: true }
-                }
+                taskstudent: true
             }
         });
         
-        // Get students assigned to the task
-        const students = task.taskstudent.map(ts => ts.student);
-        
-        // Update battlepass progress for each assigned student
-        for (const student of students) {
-            // Find the student's active battlepass progress
-            const progress = await prisma.battlepassProgress.findFirst({
-                where: { 
-                    studentId: student.id,
-                    battlepassId: 1 // You may want to make this dynamic
-                }
-            });
-            
-            if (progress) {
-                let newXp = progress.xp + (task.xp || 0);
-                let newLevel = progress.level;
-                
-                // Level up logic (300 XP per level)
-                while (newXp >= 300) {
-                    newXp -= 300;
-                    newLevel += 1;
-                }
-                
-                await prisma.battlepassProgress.update({
-                    where: { id: progress.id },
-                    data: { xp: newXp, level: newLevel }
-                });
-            } else {
-                // Create new progress if doesn't exist
-                await prisma.battlepassProgress.create({
-                    data: {
-                        studentId: student.id,
-                        battlepassId: 1, // You may want to make this dynamic
-                        xp: task.xp || 0,
-                        level: 1
-                    }
-                });
-            }
-        }
-        
+        // Return task with student IDs - let groups service handle XP
         res.status(200).json(task);
     } catch (error) {
         console.error('Error completing task:', error);
@@ -254,34 +190,27 @@ export const completeTask = async (req: Request, res: Response) => {
     }
 }
 
-/**
- * Assign students to an existing task
- */
 export const assignStudentsToTask = async (req: Request, res: Response) => {
     try {
-        const taskId = parseInt(req.params.taskId);
-        const { studentIds } = req.body; // Expecting array of student IDs
+        const taskId = parseInt(req.params.id);
+        const { studentIds } = req.body;
         
         if (!studentIds || !Array.isArray(studentIds)) {
             return res.status(400).json({ error: 'studentIds array is required' });
         }
         
-        // Create TaskStudent relationships
         await prisma.taskStudent.createMany({
             data: studentIds.map((studentId: number) => ({
                 taskId: taskId,
                 studentId: Number(studentId)
             })),
-            skipDuplicates: true // Skip if relationship already exists
+            skipDuplicates: true
         });
         
-        // Return updated task with students
         const task = await prisma.task.findUnique({
             where: { id: taskId },
             include: {
-                taskstudent: {
-                    include: { student: true }
-                }
+                taskstudent: true
             }
         });
         
@@ -295,13 +224,10 @@ export const assignStudentsToTask = async (req: Request, res: Response) => {
     }
 }
 
-/**
- * Remove a student from a task
- */
 export const removeStudentFromTask = async (req: Request, res: Response) => {
     try {
-        const taskId = parseInt(req.params.taskId);
-        const studentId = parseInt(req.params.studentId);
+        const taskId = parseInt(req.params.taskId); // Fix: parse to number
+        const studentId = parseInt(req.params.studentId); // Fix: parse to number
         
         await prisma.taskStudent.deleteMany({
             where: {
