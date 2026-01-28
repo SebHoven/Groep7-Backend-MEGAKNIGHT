@@ -1,15 +1,25 @@
 services:
-  groups:
-    container_name: groups
-    build: ./groups
-    volumes:
-      - ./groups/code:/usr/src/app
+  gateway:
+    build: ./apiGateway
+    ports:
+      - "3000:3000"
+    environment:
+      API_SERVICE_URL: http://groups:3000
+      PORT: 3000
+    depends_on:
+      - groups
     networks:
       - schoolyard
+
+  groups:
+    build: ./groups
     ports:
-      - "3012:3012"
-    working_dir: /usr/src/app
-    command: npm run dev
+      - "3012:3000"
+    environment:
+      DATABASE_URL: file:./prisma/groups.db
+      PORT: 3000
+    networks:
+      - schoolyard
 
 networks:
   schoolyard:
