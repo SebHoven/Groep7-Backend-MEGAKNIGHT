@@ -1,4 +1,17 @@
 services:
+  database:
+    build: ./database
+    container_name: schoolyard-db
+    volumes:
+      - db_data:/db
+    networks:
+      - schoolyard
+    healthcheck:
+      test: ["CMD", "test", "-f", "/db/groups.db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   gateway:
     build: ./apiGateway
     ports:
@@ -16,11 +29,20 @@ services:
     ports:
       - "3012:3000"
     environment:
-      DATABASE_URL: file:./prisma/groups.db
+      DATABASE_URL: file:/db/groups.db
       PORT: 3000
+    volumes:
+      - db_data:/db
+    depends_on:
+      database:
+        condition: service_healthy
     networks:
       - schoolyard
 
 networks:
   schoolyard:
     driver: bridge
+
+volumes:
+  db_data:
+    driver: local
