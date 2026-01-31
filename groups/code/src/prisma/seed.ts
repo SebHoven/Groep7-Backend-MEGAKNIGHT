@@ -16,39 +16,39 @@ async function main() {
   // Create a teacher
   const teacher = await prisma.teacher.create({
     data: {
-      name: "Alice Johnson",
-      email: "alice@example.com",
-      password: "password123",
-      groups: {
-        create: [
-          {
-            name: "Math Group",
-            students: {
-              create: [
-                { name: "John Doe", loginCode: "JD123" },
-                { name: "Jane Smith", loginCode: "JS456" }
-              ]
-            }
-          },
-          {
-            name: "Science Group",
-            students: {
-              create: [
-                { name: "Tom Brown", loginCode: "TB789" },
-                { name: "Sara White", loginCode: "SW101" }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    include: {
-      groups: {
-        include: {
-          students: true
-        }
-      }
+      name: "Alice Johnson"
     }
+  })
+
+  // Create groups for the teacher
+  const group1 = await prisma.group.create({
+    data: {
+      name: "Math Group",
+      teacherId: teacher.id
+    }
+  })
+
+  const group2 = await prisma.group.create({
+    data: {
+      name: "Science Group",
+      teacherId: teacher.id
+    }
+  })
+
+  // Create students for Math Group
+  const student1 = await prisma.student.create({
+    data: { name: "John Doe", groupId: group1.id }
+  })
+  const student2 = await prisma.student.create({
+    data: { name: "Jane Smith", groupId: group1.id }
+  })
+
+  // Create students for Science Group
+  const student3 = await prisma.student.create({
+    data: { name: "Tom Brown", groupId: group2.id }
+  })
+  const student4 = await prisma.student.create({
+    data: { name: "Sara White", groupId: group2.id }
   })
 
   const task = await prisma.task.create({
@@ -80,11 +80,7 @@ async function main() {
     },
   })
 
-  const studentsToAssign = [
-    teacher.groups[0].students[0],
-    teacher.groups[0].students[1],
-    teacher.groups[1].students[0]
-  ]
+  const studentsToAssign = [student1, student2, student3]
 
   for (const student of studentsToAssign) {
     await prisma.taskStudent.create({
@@ -99,11 +95,11 @@ async function main() {
   // Note: Don't explicitly set groupId, let it default to null
   const unassignedStudents = await prisma.student.createMany({
     data: [
-      { name: "Emma Wilson", loginCode: "EW111", groupId: 1 },
-      { name: "Oliver Davis", loginCode: "OD222", groupId: 1 },
-      { name: "Sophia Martinez", loginCode: "SM333", groupId: 1 },
-      { name: "Lucas Garcia", loginCode: "LG444", groupId: 1 },
-      { name: "Mia Rodriguez", loginCode: "MR555", groupId: 1 }
+      { name: "Emma Wilson", groupId: group1.id },
+      { name: "Oliver Davis", groupId: group1.id },
+      { name: "Sophia Martinez", groupId: group2.id },
+      { name: "Lucas Garcia", groupId: group2.id },
+      { name: "Mia Rodriguez", groupId: null }
     ]
   })
 
@@ -119,10 +115,10 @@ async function main() {
   })
 
   // Get students and assign BattlepassProgress
-  const students = teacher.groups.flatMap(group => group.students);
+  const students = [student1, student2, student3, student4];
 
   await prisma.battlepassProgress.createMany({
-    data: students.map((student, index) => ({
+    data: students.map((student: any, index: number) => ({
       studentId: student.id,
       battlepassId: battlepass.id,
 

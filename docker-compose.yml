@@ -1,16 +1,48 @@
 services:
-  groups:
-    container_name: groups
-    build: ./groups
+  database:
+    build: ./database
+    container_name: schoolyard-db
     volumes:
-      - ./groups/code:/usr/src/app
+      - db_data:/db
     networks:
       - schoolyard
+    healthcheck:
+      test: ["CMD", "test", "-f", "/db/groups.db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  gateway:
+    build: ./apiGateway
     ports:
-      - "3012:3012"
-    working_dir: /usr/src/app
-    command: npm run dev
+      - "3000:3000"
+    environment:
+      API_SERVICE_URL: http://groups:3000
+      PORT: 3000
+    depends_on:
+      - groups
+    networks:
+      - schoolyard
+
+  groups:
+    build: ./groups
+    ports:
+      - "3012:3000"
+    environment:
+      DATABASE_URL: file:/db/groups.db
+      PORT: 3000
+    volumes:
+      - db_data:/db
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - schoolyard
 
 networks:
   schoolyard:
     driver: bridge
+
+volumes:
+  db_data:
+    driver: local
