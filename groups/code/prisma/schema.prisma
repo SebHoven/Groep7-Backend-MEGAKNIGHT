@@ -112,22 +112,6 @@ model BattlepassProgress {
   studentId    Int
 }
 
-model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String
-  name      String?
-  role      String    @default("student") // "student" or "teacher"
-  lastLogin DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
-  teacher   Teacher?
-  student   Student?
-
-  @@map("users")
-}
-
 model Map {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
