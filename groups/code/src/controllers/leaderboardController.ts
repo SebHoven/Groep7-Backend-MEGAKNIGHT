@@ -61,6 +61,7 @@ export async function getLeaderboard(req: Request, res: Response): Promise<void>
       data: rankedLeaderboard
     });
   } catch (error) {
+    console.error('Leaderboard error:', error);
     res.status(500).send({
       error: {
         message: 'Failed to retrieve loaderboard',

@@ -30,7 +30,8 @@ export const getAllTasks = async (req: Request, res: Response) => {
         };
         res.json(taskResponse);
     } catch (errors) {
-        res.status(500).json({ error: 'kan geen taken vinden' });
+        console.error('Get all tasks error:', errors);
+        res.status(500).json({ error: 'kan geen taken vinden', details: String(errors) });
     }
 };
 
@@ -46,7 +47,8 @@ export const getTaskById = async (req: Request, res: Response) => {
         });
         res.status(200).json(tasks);
     } catch (errors) {
-        res.status(500).json({ error: 'kan je taak niet vinden' })
+        console.error('Get task by ID error:', errors);
+        res.status(500).json({ error: 'kan je taak niet vinden', details: String(errors) })
     }
 }
 
@@ -192,8 +194,8 @@ export const completeTask = async (req: Request, res: Response) => {
 
 export const assignStudentsToTask = async (req: Request, res: Response) => {
     try {
-        const taskId = parseInt(req.params.id);
-        const { studentIds } = req.body;
+        const taskId = parseInt(req.params.taskId as string);
+        const { studentIds } = req.body; // Expecting array of student IDs
         
         if (!studentIds || !Array.isArray(studentIds)) {
             return res.status(400).json({ error: 'studentIds array is required' });
@@ -204,7 +206,7 @@ export const assignStudentsToTask = async (req: Request, res: Response) => {
                 taskId: taskId,
                 studentId: Number(studentId)
             })),
-            skipDuplicates: true
+            //skipDuplicates: true // Skip if relationship already exists
         });
         
         const task = await prisma.task.findUnique({
@@ -214,20 +216,20 @@ export const assignStudentsToTask = async (req: Request, res: Response) => {
             }
         });
         
-        res.status(200).json({
+        return res.status(200).json({
             message: 'studenten toegewezen aan taak',
             data: task
         });
     } catch (error) {
         console.error('Error assigning students to task:', error);
-        res.status(500).json({ error: 'kan studenten niet toewijzen aan taak' });
+        return res.status(500).json({ error: 'kan studenten niet toewijzen aan taak' });
     }
 }
 
 export const removeStudentFromTask = async (req: Request, res: Response) => {
     try {
-        const taskId = parseInt(req.params.taskId); // Fix: parse to number
-        const studentId = parseInt(req.params.studentId); // Fix: parse to number
+        const taskId = parseInt(req.params.taskId as string);
+        const studentId = parseInt(req.params.studentId as string);
         
         await prisma.taskStudent.deleteMany({
             where: {
@@ -236,11 +238,11 @@ export const removeStudentFromTask = async (req: Request, res: Response) => {
             }
         });
         
-        res.status(200).json({
+        return res.status(200).json({
             message: 'student verwijderd van taak'
         });
     } catch (error) {
         console.error('Error removing student from task:', error);
-        res.status(500).json({ error: 'kan student niet verwijderen van taak' });
+        return res.status(500).json({ error: 'kan student niet verwijderen van taak' });
     }
 }
