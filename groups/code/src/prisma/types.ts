@@ -19,7 +19,7 @@ interface Student {
   name: string;
   groupId?: number; // Made optional
   userId?: string; // Link to User
-  tasks?: TaskStudent[];
+  // tasks?: TaskStudent[];
   groups?: GroupStudent[];
   avatar?: Avatar[];
 }

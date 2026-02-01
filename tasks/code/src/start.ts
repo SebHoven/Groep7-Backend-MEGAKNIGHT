@@ -11,14 +11,6 @@ import path from 'path';
 const app: Application = Express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3013;
 
-// CORS MUST be first
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
 // support json encoded and url-encoded bodies
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));

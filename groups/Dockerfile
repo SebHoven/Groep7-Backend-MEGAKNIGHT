@@ -26,7 +26,7 @@ RUN npm run build
 COPY code/.env .
 
 # 8. Expose port & create entrypoint script for migrations + seed
-EXPOSE 3000
+EXPOSE 3012
 
 # Create a startup script that runs migrations and seed, then starts the app
 RUN echo '#!/bin/sh\n\
