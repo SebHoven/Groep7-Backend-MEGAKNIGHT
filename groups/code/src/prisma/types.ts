@@ -19,46 +19,15 @@ interface Student {
   name: string;
   groupId?: number; // Made optional
   userId?: string; // Link to User
-  tasks?: TaskStudent[];
+  // tasks?: TaskStudent[];
   groups?: GroupStudent[];
   avatar?: Avatar[];
-}
-
-interface Task {
-  id?: number;
-  createdAt?: Date;
-  name: string;
-  description: string;
-  date: Date;
-  icon: string;
-  xp: number;
-  completed?: boolean;
-  teacherId: number; // reference to Teacher
-  tasksteps?: TaskStep[];
-  students?: TaskStudent[];
-  x?: number;
-  y?: number;
-}
-
-interface TaskStep {
-  id?: number;
-  createdAt?: Date;
-  text: string;
-  completed: boolean;
-  taskId: number; // reference to Task
 }
 
 interface GroupStudent {
   id?: number;
   createdAt?: Date;
   groupId: number; // reference to Group
-  studentId: number; // reference to Student
-}
-
-interface TaskStudent {
-  id?: number;
-  createdAt?: Date;
-  taskId: number; // reference to Task
   studentId: number; // reference to Student
 }
 
@@ -152,10 +121,7 @@ export {
   Teacher,
   Group,
   Student,
-  Task,
-  TaskStep,
   GroupStudent,
-  TaskStudent,
   Avatar,
   AvatarHasItem,
   AvatarItem,
