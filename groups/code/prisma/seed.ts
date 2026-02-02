@@ -12,7 +12,6 @@ async function main() {
   await prisma.battlepassProgress.deleteMany();
   await prisma.battlepass.deleteMany();
   await prisma.groupStudent.deleteMany();
-  await prisma.user.deleteMany();
   await prisma.student.deleteMany();
   await prisma.group.deleteMany();
   await prisma.teacher.deleteMany();
@@ -37,18 +36,7 @@ async function main() {
     }
   });
 
-  // Create teacher user - use 'teacher' relation, not 'teacherId'
-  await prisma.user.create({
-    data: {
-      email: "alice@example.com",
-      password: hashedPassword,
-      name: "Alice Johnson",
-      role: "teacher",
-      teacher: {
-        connect: { id: teacher.id }
-      }
-    }
-  });
+
 
   console.log('✅ Created teacher');
 
@@ -100,54 +88,6 @@ async function main() {
 
   console.log('✅ Created students');
 
-  // NOW create user accounts - use 'student' relation, not 'studentId'
-  await prisma.user.create({
-    data: {
-      email: "john@example.com",
-      password: hashedPassword,
-      name: "John Doe",
-      role: "student",
-      student: {
-        connect: { id: student1.id }
-      }
-    }
-  });
-
-  await prisma.user.create({
-    data: {
-      email: "jane@example.com",
-      password: hashedPassword,
-      name: "Jane Smith",
-      role: "student",
-      student: {
-        connect: { id: student2.id }
-      }
-    }
-  });
-
-  await prisma.user.create({
-    data: {
-      email: "tom@example.com",
-      password: hashedPassword,
-      name: "Tom Brown",
-      role: "student",
-      student: {
-        connect: { id: student3.id }
-      }
-    }
-  });
-
-  await prisma.user.create({
-    data: {
-      email: "sara@example.com",
-      password: hashedPassword,
-      name: "Sara White",
-      role: "student",
-      student: {
-        connect: { id: student4.id }
-      }
-    }
-  });
 
   console.log('✅ Created user accounts');
 
@@ -162,19 +102,6 @@ async function main() {
     ]
   });
 
-  console.log('✅ Created unassigned students');
-
-  // Create admin user
-  await prisma.user.create({
-    data: {
-      email: "admin@example.com",
-      password: hashedPassword,
-      name: "Admin User",
-      role: "teacher"
-    }
-  });
-
-  console.log('✅ Created admin user');
 
   // Get all students for battlepass progress
   const allStudents = await prisma.student.findMany();
@@ -194,13 +121,12 @@ async function main() {
   const studentCount = await prisma.student.count();
   const groupCount = await prisma.group.count();
   const teacherCount = await prisma.teacher.count();
-  const userCount = await prisma.user.count();
+  
 
   console.log('\n📊 Seed Summary:');
   console.log(`   Teachers: ${teacherCount}`);
   console.log(`   Groups: ${groupCount}`);
   console.log(`   Students: ${studentCount}`);
-  console.log(`   Users: ${userCount}`);
   console.log(`   Battlepass: ${battlepass.name}`);
   console.log('\n✅ Database seeded successfully!');
 }

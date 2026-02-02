@@ -1,0 +1,30 @@
+{
+  "name": "auth-service",
+  "version": "1.0.0",
+  "description": "Authentication microservice",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+   "dev": "tsx src/routes/index.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.0.0",
+    "express": "^4.18.2",
+    "dotenv": "^16.3.1",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.4.5",
+    "@types/bcrypt": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.2",
+    "typescript": "^5.1.6",
+    "tsx": "^3.12.7",
+    "prisma": "^5.0.0"
+  }
+}
