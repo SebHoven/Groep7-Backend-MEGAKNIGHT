@@ -42,49 +42,6 @@ app.get('/health', (_, res) => {
   });
 });
 
-// ===== MICROSERVICE PROXIES =====
-
-// Auth service proxy
-app.use(
-  '/api/auth',
-  createProxyMiddleware({
-    target: AUTH_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: { '^/api': '' },
-    logLevel: 'debug',
-    on: {
-      proxyReq: (proxyReq, req, res) => {
-        console.log('=== AUTH PROXY ===');
-        console.log(`Original URL: ${req.url}`);
-        console.log(`Proxied to: ${AUTH_SERVICE_URL}${proxyReq.path}`);
-        console.log(`Method: ${req.method}`);
-        console.log(`Headers:`, JSON.stringify(proxyReq.getHeaders(), null, 2));
-        console.log('==================');
-      },
-      proxyRes: (proxyRes, req, res) => {
-        console.log(`[Auth] Response Status: ${proxyRes.statusCode}`);
-      },
-      error: (err, req, res) => {
-        console.error('=== AUTH PROXY ERROR ===');
-        console.error(`Error: ${err.message}`);
-        console.error(`Request: ${req.method} ${req.url}`);
-        console.error(`Target: ${AUTH_SERVICE_URL}`);
-        console.error('========================');
-        
-        if (res instanceof ServerResponse) {
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ 
-            error: 'Auth service unavailable',
-            message: err.message,
-            target: AUTH_SERVICE_URL,
-            url: req.url
-          }));
-        }
-      }
-    }
-  } as Options)
-);
-
 // Auth service proxy
 app.use(
   '/api/auth',

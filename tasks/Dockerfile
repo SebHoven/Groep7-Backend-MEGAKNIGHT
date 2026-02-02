@@ -23,5 +23,5 @@ COPY code/src ./src
 RUN npm run build
 
 # 7. Expose port & run
-EXPOSE 3000
+EXPOSE 3013
 CMD ["npm", "start"]
