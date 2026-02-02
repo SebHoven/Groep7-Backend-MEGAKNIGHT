@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 const GROUPS_SERVICE_URL = process.env.GROUPS_SERVICE_URL || 'http://groups:3012';
 const TASKS_SERVICE_URL = process.env.TASKS_SERVICE_URL || 'http://tasks:3013';
 const AVATAR_SERVICE_URL = process.env.AVATAR_SERVICE_URL || 'http://avatar:3014';
+const MAP_SERVICE_URL = process.env.MAP_SERVICE_URL || 'http://map:3016';
 
 // Manual CORS headers
 app.use((req, res, next) => {
@@ -31,7 +32,8 @@ app.get('/health', (_, res) => {
     services: {
       groups: GROUPS_SERVICE_URL,
       tasks: TASKS_SERVICE_URL,
-      avatar: AVATAR_SERVICE_URL
+      avatar: AVATAR_SERVICE_URL,
+      map: MAP_SERVICE_URL
     }
   });
 });

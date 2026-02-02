@@ -22,9 +22,6 @@ COPY code/src ./src
 # 6. Build TypeScript
 RUN npm run build
 
-# 7. Copy .env file for runtime
-COPY code/.env .
-
 # 8. Expose port & create entrypoint script for migrations + seed
 EXPOSE 3013
 
