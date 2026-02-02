@@ -51,9 +51,7 @@ services:
     container_name: groups
     build: ./groups
     volumes:
-      - ./groups/code:/usr/src/app
-      - /usr/src/app/node_modules
-      - db_data:/db  # Mount shared database volume
+      - db_data:/db
     networks:
       - schoolyard
     ports:
@@ -62,8 +60,6 @@ services:
       DATABASE_URL: "file:/db/groups.db"
       PORT: 3012
       JWT_SECRET: "secretkey"
-    working_dir: /usr/src/app
-    command: sh -c "chmod 777 /db && npm install && npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
     depends_on:
       database:
         condition: service_healthy
