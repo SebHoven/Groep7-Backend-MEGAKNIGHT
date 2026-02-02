@@ -56,37 +56,37 @@ export class RegisterController {
 
       // Create user
       const newUser = await prisma.user.create({
-        data: {
-          email: email.toLowerCase(),
-          password: hashedPassword,
-          name: name,
-          role: userRole,
-          // Automatically create Student or Teacher record based on role
-          ...(userRole === "student" && {
-            student: {
-              create: {
-                name: name
-              }
-            }
-          }),
-          ...(userRole === "teacher" && {
-            teacher: {
-              create: {
-                name: name
-              }
-            }
-          })
-        },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          createdAt: true,
-          student: true,
-          teacher: true
+  data: {
+    email: email.toLowerCase(),
+    password: hashedPassword,
+    name: name,
+    role: role, // "student" or "teacher"
+    // Automatically create Student or Teacher record based on role
+    ...(role === "student" && {
+      student: {
+        create: {
+          name: name
         }
-      });
+      }
+    }),
+    ...(role === "teacher" && {
+      teacher: {
+        create: {
+          name: name
+        }
+      }
+    })
+  },
+  select: {
+    id: true,
+    email: true,
+    name: true,
+    role: true,
+    createdAt: true,
+    student: true,
+    teacher: true
+  }
+});
 
       return res.status(201).json({
         success: true,

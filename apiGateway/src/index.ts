@@ -8,14 +8,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://auth:3015';
 const GROUPS_SERVICE_URL = process.env.GROUPS_SERVICE_URL || 'http://groups:3012';
 const TASKS_SERVICE_URL = process.env.TASKS_SERVICE_URL || 'http://tasks:3013';
 const AVATAR_SERVICE_URL = process.env.AVATAR_SERVICE_URL || 'http://avatar:3014';
-const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://auth:3015';
 
 // Body parser middleware (for any direct routes if needed)
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
 // Manual CORS headers
 app.use((req, res, next) => {
@@ -50,7 +50,7 @@ app.use(
   createProxyMiddleware({
     target: AUTH_SERVICE_URL,
     changeOrigin: true,
-    pathRewrite: { '^/api/auth': '' },
+    pathRewrite: { '^/api': '' },
     logLevel: 'debug',
     on: {
       proxyReq: (proxyReq, req, res) => {
@@ -78,6 +78,39 @@ app.use(
             message: err.message,
             target: AUTH_SERVICE_URL,
             url: req.url
+          }));
+        }
+      }
+    }
+  } as Options)
+);
+
+// Auth service proxy
+app.use(
+  '/api/auth',
+  createProxyMiddleware({
+    target: AUTH_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: { '^/api/auth': '' },
+    logLevel: 'debug',
+    on: {
+      proxyReq: (proxyReq, req, res) => {
+        console.log('=== AUTH PROXY ===');
+        console.log(`Original URL: ${req.url}`);
+        console.log(`Proxied to: ${AUTH_SERVICE_URL}${proxyReq.path}`);
+        console.log(`Method: ${req.method}`);
+        console.log('==================');
+      },
+      error: (err, req, res) => {
+        console.error('=== AUTH PROXY ERROR ===');
+        console.error(`Error: ${err.message}`);
+        console.error('=========================');
+        
+        if (res instanceof ServerResponse) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 
+            error: 'Auth service unavailable',
+            message: err.message
           }));
         }
       }

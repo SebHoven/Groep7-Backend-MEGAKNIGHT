@@ -22,16 +22,6 @@ COPY code/src ./src
 # 6. Build TypeScript
 RUN npm run build
 
-# 7. Copy .env file for runtime
-COPY code/.env .
-
-# 8. Expose port & create entrypoint script for migrations + seed
-EXPOSE 3013
-
-# Create a startup script that runs migrations and seed, then starts the app
-RUN echo '#!/bin/sh\n\
-npx prisma migrate deploy --schema ./prisma/schema.prisma && \n\
-npx prisma db seed --schema ./prisma/schema.prisma && \n\
-node dist/start.js\n' > /usr/src/app/start.sh && chmod +x /usr/src/app/start.sh
-
-CMD ["/usr/src/app/start.sh"]
+# 7. Expose port & run
+EXPOSE 3000
+CMD ["npm", "start"]

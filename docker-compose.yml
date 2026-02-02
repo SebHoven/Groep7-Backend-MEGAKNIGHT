@@ -38,19 +38,14 @@ services:
     container_name: auth
     build: ./auth-service
     volumes:
-      - ./auth-service:/usr/src/app
+      - ./auth-service/code:/usr/src/app
       - /usr/src/app/node_modules
-      - auth-db:/usr/src/app/prisma
     networks:
       - schoolyard
     ports:
       - "3015:3015"
-    environment:
-      DATABASE_URL: "file:./prisma/auth.db"
-      PORT: 3015
-      JWT_SECRET: "secretkey"
     working_dir: /usr/src/app
-    command: sh -c "npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
+    command: npm run dev
 
   groups:
     container_name: groups
@@ -79,16 +74,14 @@ services:
     volumes:
       - ./tasks/code:/usr/src/app
       - /usr/src/app/node_modules
-      - tasks-db:/usr/src/app/prisma
     networks:
       - schoolyard
     ports:
       - "3013:3013"
     environment:
-      DATABASE_URL: "file:./prisma/tasks.db"
-      PORT: 3013
+      AUTH_SERVICE_URL: "http://auth:3015"
     working_dir: /usr/src/app
-    command: sh -c "npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
+    command: npm run dev
 
 networks:
   schoolyard:
