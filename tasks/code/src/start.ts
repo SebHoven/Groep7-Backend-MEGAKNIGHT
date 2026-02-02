@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 
 const app: Application = Express();
-const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3012;
+const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3013;
 
 // support json encoded and url-encoded bodies
 app.use(Express.json());

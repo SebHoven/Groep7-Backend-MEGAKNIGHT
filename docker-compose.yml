@@ -1,16 +1,78 @@
 services:
+  database:
+    build: ./database
+    container_name: schoolyard-db
+    volumes:
+      - db_data:/db
+    networks:
+      - schoolyard
+    healthcheck:
+      test: ["CMD", "test", "-f", "/db/groups.db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  gateway:
+    build: ./apiGateway
+    container_name: gateway
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      GROUPS_SERVICE_URL: http://groups:3012
+      TASKS_SERVICE_URL: http://tasks:3013
+    depends_on:
+      database:
+        condition: service_healthy
+      groups:
+        condition: service_started
+      tasks:
+        condition: service_started
+    networks:
+      - schoolyard
+
   groups:
     container_name: groups
     build: ./groups
     volumes:
       - ./groups/code:/usr/src/app
+      - /usr/src/app/node_modules
+      - db_data:/db  # Mount shared database volume
     networks:
       - schoolyard
     ports:
       - "3012:3012"
+    environment:
+      DATABASE_URL: "file:/db/groups.db"
+      PORT: 3012
+      JWT_SECRET: "secretkey"
     working_dir: /usr/src/app
-    command: npm run dev
+    command: sh -c "chmod 777 /db && npm install && npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
+    depends_on:
+      database:
+        condition: service_healthy
+    
+  tasks:
+    container_name: tasks
+    build: ./tasks
+    volumes:
+      - ./tasks/code:/usr/src/app
+      - /usr/src/app/node_modules
+      - tasks-db:/usr/src/app/prisma
+    networks:
+      - schoolyard
+    ports:
+      - "3013:3013"
+    environment:
+      DATABASE_URL: "file:./prisma/tasks.db"
+      PORT: 3013
+    working_dir: /usr/src/app
+    command: sh -c "npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
 
 networks:
   schoolyard:
     driver: bridge
+
+volumes:
+  db_data:
+  tasks-db:

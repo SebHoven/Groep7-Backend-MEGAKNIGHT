@@ -234,8 +234,8 @@ export const deleteGroup = async (req: Request, res: Response) => {
  */
 export const addStudentToGroup = async (req: Request, res: Response) => {
     try {
-        const groupId = parseInt(req.params.groupId);  // Changed from req.params.id
-        const studentId = parseInt(req.params.studentId);  // Changed from req.body.studentId
+        const groupId = parseInt(req.params.groupId as string);  // Changed from req.params.id
+        const studentId = parseInt(req.params.studentId as string);  // Changed from req.body.studentId
         
         // Update the student's groupId
         const student = await prisma.student.update({
@@ -266,8 +266,8 @@ export const addStudentToGroup = async (req: Request, res: Response) => {
  */
 export const removeStudentFromGroup = async (req: Request, res: Response) => {
     try {
-        const groupId = parseInt(req.params.groupId);
-        const studentId = parseInt(req.params.studentId);
+        const groupId = parseInt(req.params.groupId as string);
+        const studentId = parseInt(req.params.studentId as string);
         
         // Remove the student's groupId
         const student = await prisma.student.update({

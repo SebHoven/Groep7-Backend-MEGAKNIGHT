@@ -1,10 +1,25 @@
-import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
-import bcrypt from 'bcrypt'
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
+
+const prisma = new PrismaClient();
 
 async function main() {
+  console.log('🌱 Starting database seed...');
 
-  // Create a battlepass
+  const hashedPassword = await bcrypt.hash('password123', 10);
+
+  // Clear existing data in correct order
+  await prisma.battlepassProgress.deleteMany();
+  await prisma.battlepass.deleteMany();
+  await prisma.groupStudent.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.student.deleteMany();
+  await prisma.group.deleteMany();
+  await prisma.teacher.deleteMany();
+
+  console.log('✅ Cleared existing data');
+
+  // Create battlepass
   const battlepass = await prisma.battlepass.create({
     data: {
       name: "Season 1",
@@ -13,133 +28,188 @@ async function main() {
     }
   });
 
-  // Create a teacher
+  console.log('✅ Created battlepass');
+
+  // Create teacher
   const teacher = await prisma.teacher.create({
     data: {
-      name: "Alice Johnson",
+      name: "Alice Johnson"
+    }
+  });
+
+  // Create teacher user - use 'teacher' relation, not 'teacherId'
+  await prisma.user.create({
+    data: {
       email: "alice@example.com",
-      password: "password123",
-      groups: {
-        create: [
-          {
-            name: "Math Group",
-            students: {
-              create: [
-                { name: "John Doe", loginCode: "JD123" },
-                { name: "Jane Smith", loginCode: "JS456" }
-              ]
-            }
-          },
-          {
-            name: "Science Group",
-            students: {
-              create: [
-                { name: "Tom Brown", loginCode: "TB789" },
-                { name: "Sara White", loginCode: "SW101" }
-              ]
-            }
-          }
-        ]
-      }
-    },
-    include: {
-      groups: {
-        include: {
-          students: true
-        }
+      password: hashedPassword,
+      name: "Alice Johnson",
+      role: "teacher",
+      teacher: {
+        connect: { id: teacher.id }
       }
     }
-  })
+  });
 
-  const task = await prisma.task.create({
+  console.log('✅ Created teacher');
+
+  // Create groups
+  const group1 = await prisma.group.create({
     data: {
-      name: 'kan je koppen??',
-      description: 'rode kaart pakken',
-      date: new Date(2025, 6, 4),
-      icon: '🫃🟥',
-      xp: 67,
-      teacherId: teacher.id,
-      tasksteps: {
-        create: [
-          {
-            text: 'Ga naar het veld',
-            completed: false
-          },
-          {
-            text: 'Pak de rode kaart',
-            completed: false
-          },
-          {
-            text: 'Koppen',
-            completed: false
-          }
-        ]
-      },
-      x: 150,
-      y: 300
-    },
-  })
+      name: "Math Group",
+      teacherId: teacher.id
+    }
+  });
 
-  const studentsToAssign = [
-    teacher.groups[0].students[0],
-    teacher.groups[0].students[1],
-    teacher.groups[1].students[0]
-  ]
+  const group2 = await prisma.group.create({
+    data: {
+      name: "Science Group",
+      teacherId: teacher.id
+    }
+  });
 
-  for (const student of studentsToAssign) {
-    await prisma.taskStudent.create({
-      data: {
-        taskId: task.id,
-        studentId: student.id
+  console.log('✅ Created groups');
+
+  // Create students WITHOUT user relation
+  const student1 = await prisma.student.create({
+    data: {
+      name: "John Doe",
+      groupId: group1.id
+    }
+  });
+
+  const student2 = await prisma.student.create({
+    data: {
+      name: "Jane Smith",
+      groupId: group1.id
+    }
+  });
+
+  const student3 = await prisma.student.create({
+    data: {
+      name: "Tom Brown",
+      groupId: group2.id
+    }
+  });
+
+  const student4 = await prisma.student.create({
+    data: {
+      name: "Sara White",
+      groupId: group2.id
+    }
+  });
+
+  console.log('✅ Created students');
+
+  // NOW create user accounts - use 'student' relation, not 'studentId'
+  await prisma.user.create({
+    data: {
+      email: "john@example.com",
+      password: hashedPassword,
+      name: "John Doe",
+      role: "student",
+      student: {
+        connect: { id: student1.id }
       }
-    })
-  }
+    }
+  });
 
-  // Create some unassigned students (not in any group yet)
-  // Note: Don't explicitly set groupId, let it default to null
-  const unassignedStudents = await prisma.student.createMany({
+  await prisma.user.create({
+    data: {
+      email: "jane@example.com",
+      password: hashedPassword,
+      name: "Jane Smith",
+      role: "student",
+      student: {
+        connect: { id: student2.id }
+      }
+    }
+  });
+
+  await prisma.user.create({
+    data: {
+      email: "tom@example.com",
+      password: hashedPassword,
+      name: "Tom Brown",
+      role: "student",
+      student: {
+        connect: { id: student3.id }
+      }
+    }
+  });
+
+  await prisma.user.create({
+    data: {
+      email: "sara@example.com",
+      password: hashedPassword,
+      name: "Sara White",
+      role: "student",
+      student: {
+        connect: { id: student4.id }
+      }
+    }
+  });
+
+  console.log('✅ Created user accounts');
+
+  // Create unassigned students
+  await prisma.student.createMany({
     data: [
-      { name: "Emma Wilson", loginCode: "EW111", groupId: 1 },
-      { name: "Oliver Davis", loginCode: "OD222", groupId: 1 },
-      { name: "Sophia Martinez", loginCode: "SM333", groupId: 1 },
-      { name: "Lucas Garcia", loginCode: "LG444", groupId: 1 },
-      { name: "Mia Rodriguez", loginCode: "MR555", groupId: 1 }
+      { name: "Emma Wilson" },
+      { name: "Oliver Davis" },
+      { name: "Sophia Martinez" },
+      { name: "Lucas Garcia" },
+      { name: "Mia Rodriguez" }
     ]
-  })
+  });
 
-  const hashedPassword = await bcrypt.hash('password123', 10)
+  console.log('✅ Created unassigned students');
 
-  // Create a user for login
-  const user = await prisma.user.create({
+  // Create admin user
+  await prisma.user.create({
     data: {
       email: "admin@example.com",
       password: hashedPassword,
-      name: "Admin User"
+      name: "Admin User",
+      role: "teacher"
     }
-  })
+  });
 
-  // Get students and assign BattlepassProgress
-  const students = teacher.groups.flatMap(group => group.students);
+  console.log('✅ Created admin user');
 
+  // Get all students for battlepass progress
+  const allStudents = await prisma.student.findMany();
+
+  // Create battlepass progress
   await prisma.battlepassProgress.createMany({
-    data: students.map((student, index) => ({
+    data: allStudents.map((student, index) => ({
       studentId: student.id,
       battlepassId: battlepass.id,
-
-      // Random xp and levels
       level: Math.floor(index / 2) + 1,
       xp: 100 + index * 50
     }))
   });
 
-  console.log("Seeded teacher with groups and students:", teacher)
+  console.log('✅ Created battlepass progress');
+
+  const studentCount = await prisma.student.count();
+  const groupCount = await prisma.group.count();
+  const teacherCount = await prisma.teacher.count();
+  const userCount = await prisma.user.count();
+
+  console.log('\n📊 Seed Summary:');
+  console.log(`   Teachers: ${teacherCount}`);
+  console.log(`   Groups: ${groupCount}`);
+  console.log(`   Students: ${studentCount}`);
+  console.log(`   Users: ${userCount}`);
+  console.log(`   Battlepass: ${battlepass.name}`);
+  console.log('\n✅ Database seeded successfully!');
 }
 
 main()
-  .catch(e => {
-    console.error(e)
-    process.exit(1)
+  .catch((e) => {
+    console.error('❌ Seeding failed:', e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });
