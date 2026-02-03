@@ -3,6 +3,12 @@ import { getUnassignedStudents, getAllGroups, getGroupById, getGroupStudents, ge
 import cors from 'cors';
 import { getLeaderboard } from '../controllers/leaderboardController.js';
 import mapRoutes from './maps.js';
+import { LoginController } from '../controllers/loginController.js';
+import { RegisterController } from '../controllers/registerController.js';
+
+const registerController = new RegisterController();
+
+const loginController = new LoginController();
 
 const router: Router = Express.Router();
 
