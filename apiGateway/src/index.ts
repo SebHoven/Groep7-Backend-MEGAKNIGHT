@@ -16,15 +16,6 @@ const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://auth:3015';
 const MAP_SERVICE_URL = process.env.MAP_SERVICE_URL || 'http://map:3016';
 const LEADERBOARD_SERVICE_URL = process.env.LEADERBOARD_SERVICE_URL || 'http://leaderboard:3017';
 
-
-// Body parser middleware (for any direct routes if needed)
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Body parser middleware (for any direct routes if needed)
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
-
 // Manual CORS headers
 app.use((req, res, next) => {
   const origin = req.headers.origin || 'http://localhost:5173';
