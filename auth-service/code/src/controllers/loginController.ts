@@ -32,7 +32,9 @@ export class LoginController {
           email: true,
           password: true,
           name: true,
-          role: true
+          role: true,
+          student: true,
+          teacher: true
         }
       });
       
@@ -67,6 +69,33 @@ export class LoginController {
         data: { lastLogin: new Date() }
       });
 
+      // Sync to groups service on login (for existing users created before sync was implemented)
+      try {
+        const GROUPS_SERVICE_URL = process.env.GROUPS_SERVICE_URL || 'http://groups:3012';
+        const syncEndpoint = user.role === 'student' ? '/students/sync' : '/teachers/sync';
+        const syncUrl = `${GROUPS_SERVICE_URL}${syncEndpoint}`;
+        const syncData = {
+          userId: user.id,
+          name: user.name
+        };
+        
+        console.log('🔄 Attempting to sync to groups service...');
+        console.log('URL:', syncUrl);
+        console.log('Data:', syncData);
+        
+        const response = await fetch(syncUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(syncData)
+        });
+        
+        const responseData = await response.json();
+        console.log('✅ Sync response:', response.status, responseData);
+      } catch (syncError) {
+        console.error('❌ Failed to sync to groups service on login:', syncError);
+        // Don't fail login if sync fails
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Login successful',
@@ -76,7 +105,9 @@ export class LoginController {
             id: user.id,
             email: user.email,
             name: user.name,
-            role: user.role
+            role: user.role,
+            student: user.student,
+            teacher: user.teacher
           }
         }
       });
@@ -120,7 +151,7 @@ export class LoginController {
 
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
-        select: { id: true, email: true, name: true, role: true }
+        select: { id: true, email: true, name: true, role: true, student: true, teacher: true }
       });
 
       if (!user) {
@@ -136,7 +167,9 @@ export class LoginController {
           userId: user.id,
           email: user.email,
           name: user.name,
-          role: user.role
+          role: user.role,
+          student: user.student,
+          teacher: user.teacher
         }
       });
     } catch (error) {

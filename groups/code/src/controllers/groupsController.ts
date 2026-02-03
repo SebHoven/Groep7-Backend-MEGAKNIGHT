@@ -89,7 +89,6 @@ export const getGroupStudents = async (req: Request, res: Response) => {
             include: {
                 students: {
                     include: {
-                        avatar: true,
                         progress: true
                     }
                 }
@@ -117,7 +116,10 @@ export const getGroupStudents = async (req: Request, res: Response) => {
 export const getUnassignedStudents = async (req: Request, res: Response) => {
     try {
         const students = await prisma.student.findMany({
-            where: { groupId: null }
+            where: { groupId: null },
+            include: {
+                progress: true
+            }
         });
         
         res.status(200).json({
@@ -158,10 +160,32 @@ export const getGroupsByTeacher = async (req: Request, res: Response) => {
  */
 export const createGroup = async (req: Request, res: Response) => {
     try {
+        const { name, teacherId } = req.body;
+        
+        if (!name || !teacherId) {
+            return res.status(400).json({ 
+                error: 'name en teacherId zijn verplicht',
+                received: { name, teacherId }
+            });
+        }
+
+        // Check if teacher exists
+        const teacher = await prisma.teacher.findUnique({
+            where: { id: Number(teacherId) }
+        });
+
+        if (!teacher) {
+            return res.status(404).json({ 
+                error: 'Leraar niet gevonden',
+                teacherId: Number(teacherId),
+                hint: 'Leraar moet eerst gesynchroniseerd worden vanuit auth service'
+            });
+        }
+
         const group = await prisma.group.create({
             data: {
-                name: req.body.name,
-                teacherId: Number(req.body.teacherId)
+                name: name,
+                teacherId: Number(teacherId)
             },
             include: {
                 teacher: true,
@@ -169,9 +193,13 @@ export const createGroup = async (req: Request, res: Response) => {
             }
         });
         
-        res.status(201).json(group);
+        return res.status(201).json(group);
     } catch (errors) {
-        res.status(500).json({ error: 'kan geen groep aanmaken' });
+        console.error('Error creating group:', errors);
+        return res.status(500).json({ 
+            error: 'kan geen groep aanmaken',
+            details: errors instanceof Error ? errors.message : String(errors)
+        });
     }
 };
 

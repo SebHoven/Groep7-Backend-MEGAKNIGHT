@@ -8,15 +8,17 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
 const GROUPS_SERVICE_URL = process.env.GROUPS_SERVICE_URL || 'http://groups:3012';
 const TASKS_SERVICE_URL = process.env.TASKS_SERVICE_URL || 'http://tasks:3013';
 const AVATAR_SERVICE_URL = process.env.AVATAR_SERVICE_URL || 'http://avatar:3014';
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://auth:3015';
 const MAP_SERVICE_URL = process.env.MAP_SERVICE_URL || 'http://map:3016';
 
+
 // Body parser middleware (for any direct routes if needed)
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
 // Manual CORS headers
 app.use((req, res, next) => {
@@ -46,8 +48,6 @@ app.get('/health', (_, res) => {
   });
 });
 
-// ===== MICROSERVICE PROXIES =====
-
 // Auth service proxy
 app.use(
   '/api/auth',
@@ -62,26 +62,18 @@ app.use(
         console.log(`Original URL: ${req.url}`);
         console.log(`Proxied to: ${AUTH_SERVICE_URL}${proxyReq.path}`);
         console.log(`Method: ${req.method}`);
-        console.log(`Headers:`, JSON.stringify(proxyReq.getHeaders(), null, 2));
         console.log('==================');
-      },
-      proxyRes: (proxyRes, req, res) => {
-        console.log(`[Auth] Response Status: ${proxyRes.statusCode}`);
       },
       error: (err, req, res) => {
         console.error('=== AUTH PROXY ERROR ===');
         console.error(`Error: ${err.message}`);
-        console.error(`Request: ${req.method} ${req.url}`);
-        console.error(`Target: ${AUTH_SERVICE_URL}`);
-        console.error('========================');
+        console.error('=========================');
         
         if (res instanceof ServerResponse) {
           res.writeHead(500, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ 
             error: 'Auth service unavailable',
-            message: err.message,
-            target: AUTH_SERVICE_URL,
-            url: req.url
+            message: err.message
           }));
         }
       }
@@ -122,6 +114,46 @@ app.use(
             error: 'Tasks service unavailable',
             message: err.message,
             target: TASKS_SERVICE_URL,
+            url: req.url
+          }));
+        }
+      }
+    }
+  } as Options)
+);
+
+// Avatar service proxy
+app.use(
+  '/api/avatar',
+  createProxyMiddleware({
+    target: AVATAR_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: { '^/api/avatar': '' },
+    logLevel: 'debug',
+    on: {
+      proxyReq: (proxyReq, req, res) => {
+        console.log('=== AVATAR PROXY ===');
+        console.log(`Original URL: ${req.url}`);
+        console.log(`Proxied to: ${AVATAR_SERVICE_URL}${proxyReq.path}`);
+        console.log(`Method: ${req.method}`);
+        console.log('====================');
+      },
+      proxyRes: (proxyRes, req, res) => {
+        console.log(`[Avatar] Response Status: ${proxyRes.statusCode}`);
+      },
+      error: (err, req, res) => {
+        console.error('=== AVATAR PROXY ERROR ===');
+        console.error(`Error: ${err.message}`);
+        console.error(`Request: ${req.method} ${req.url}`);
+        console.error(`Target: ${AVATAR_SERVICE_URL}`);
+        console.error('==========================');
+        
+        if (res instanceof ServerResponse) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 
+            error: 'Avatar service unavailable',
+            message: err.message,
+            target: AVATAR_SERVICE_URL,
             url: req.url
           }));
         }
@@ -174,5 +206,6 @@ app.listen(PORT, () => {
   console.log(`API Gateway running on port ${PORT}`);
   console.log(`Proxying /api/auth/* to ${AUTH_SERVICE_URL}`);
   console.log(`Proxying /api/tasks/* to ${TASKS_SERVICE_URL}`);
+  console.log(`Proxying /api/avatar/* to ${AVATAR_SERVICE_URL}`);
   console.log(`Proxying /api/* to ${GROUPS_SERVICE_URL}`);
 });

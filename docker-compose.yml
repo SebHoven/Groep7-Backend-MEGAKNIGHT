@@ -23,6 +23,7 @@ services:
       GROUPS_SERVICE_URL: http://groups:3012
       TASKS_SERVICE_URL: http://tasks:3013
       MAP_SERVICE_URL: http://map:3016
+      AVATAR_SERVICE_URL: http://avatar:3014
     depends_on:
       database:
         condition: service_healthy
@@ -32,6 +33,8 @@ services:
         condition: service_started
       tasks:
         condition: service_started
+      avatar:
+        condition: service_started
     networks:
       - schoolyard
 
@@ -39,19 +42,18 @@ services:
     container_name: auth
     build: ./auth-service
     volumes:
-      - ./auth-service:/usr/src/app
+      - ./auth-service/code:/usr/src/app
       - /usr/src/app/node_modules
-      - auth-db:/usr/src/app/prisma
     networks:
       - schoolyard
     ports:
       - "3015:3015"
     environment:
-      DATABASE_URL: "file:./prisma/auth.db"
-      PORT: 3015
-      JWT_SECRET: "secretkey"
+      GROUPS_SERVICE_URL: http://groups:3012
+    depends_on:
+      - groups
     working_dir: /usr/src/app
-    command: sh -c "npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
+    command: npm run dev
 
   groups:
     container_name: groups
@@ -76,16 +78,27 @@ services:
     volumes:
       - ./tasks/code:/usr/src/app
       - /usr/src/app/node_modules
-      - tasks-db:/usr/src/app/prisma
     networks:
       - schoolyard
     ports:
       - "3013:3013"
     environment:
-      DATABASE_URL: "file:./prisma/tasks.db"
-      PORT: 3013
+      AUTH_SERVICE_URL: "http://auth:3015"
     working_dir: /usr/src/app
-    command: sh -c "npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
+    command: npm run dev
+
+  avatar:
+    container_name: avatar
+    build: ./avatar
+    volumes:
+      - ./avatar/code:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - schoolyard
+    ports:
+      - "3014:3014" 
+    working_dir: /usr/src/app
+    command: npm run dev
 
   map:
     container_name: map
