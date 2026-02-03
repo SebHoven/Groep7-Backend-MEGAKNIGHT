@@ -88,6 +88,24 @@ export class RegisterController {
   }
 });
 
+      // Sync to groups service
+      try {
+        const GROUPS_SERVICE_URL = process.env.GROUPS_SERVICE_URL || 'http://groups:3012';
+        const syncEndpoint = role === 'student' ? '/students/sync' : '/teachers/sync';
+        
+        await fetch(`${GROUPS_SERVICE_URL}${syncEndpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: newUser.id,
+            name: newUser.name
+          })
+        });
+      } catch (syncError) {
+        console.error('Warning: Failed to sync to groups service:', syncError);
+        // Don't fail registration if sync fails
+      }
+
       return res.status(201).json({
         success: true,
         message: 'User registered successfully',

@@ -47,6 +47,10 @@ services:
       - schoolyard
     ports:
       - "3015:3015"
+    environment:
+      GROUPS_SERVICE_URL: http://groups:3012
+    depends_on:
+      - groups
     working_dir: /usr/src/app
     command: npm run dev
 

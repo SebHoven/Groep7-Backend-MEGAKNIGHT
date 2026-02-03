@@ -69,6 +69,33 @@ export class LoginController {
         data: { lastLogin: new Date() }
       });
 
+      // Sync to groups service on login (for existing users created before sync was implemented)
+      try {
+        const GROUPS_SERVICE_URL = process.env.GROUPS_SERVICE_URL || 'http://groups:3012';
+        const syncEndpoint = user.role === 'student' ? '/students/sync' : '/teachers/sync';
+        const syncUrl = `${GROUPS_SERVICE_URL}${syncEndpoint}`;
+        const syncData = {
+          userId: user.id,
+          name: user.name
+        };
+        
+        console.log('🔄 Attempting to sync to groups service...');
+        console.log('URL:', syncUrl);
+        console.log('Data:', syncData);
+        
+        const response = await fetch(syncUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(syncData)
+        });
+        
+        const responseData = await response.json();
+        console.log('✅ Sync response:', response.status, responseData);
+      } catch (syncError) {
+        console.error('❌ Failed to sync to groups service on login:', syncError);
+        // Don't fail login if sync fails
+      }
+
       return res.status(200).json({
         success: true,
         message: 'Login successful',
