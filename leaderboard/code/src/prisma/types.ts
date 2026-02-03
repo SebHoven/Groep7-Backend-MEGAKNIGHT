@@ -21,6 +21,7 @@ interface Student {
   userId?: string; // Link to User
   // tasks?: TaskStudent[];
   groups?: GroupStudent[];
+  avatar?: Avatar[];
 }
 
 interface GroupStudent {
@@ -28,6 +29,32 @@ interface GroupStudent {
   createdAt?: Date;
   groupId: number; // reference to Group
   studentId: number; // reference to Student
+}
+
+interface Avatar {
+  id?: number;
+  createdAt?: Date;
+  studentId: number; // reference to Student
+  student?: Student;
+  avatarHasItem: AvatarHasItem[];
+}
+
+interface AvatarHasItem {
+  id: number;
+  createdAt?: Date;
+  avatarId: number; //reference to Avatar
+  avatar: Avatar;
+  avatarItemId: number; // reference to AvatarItem
+  avatarItem: AvatarItem;
+}
+
+interface AvatarItem {
+  id: number;
+  createdAt: Date;
+  slot: number;
+  name: string;
+  texture: string;
+  avatarHasItem: AvatarHasItem[];
 }
 
 interface Battlepass {
@@ -44,6 +71,8 @@ interface BattlepassReward {
   id: number;
   createdAt: Date;
   level: number;
+  avatarItem: AvatarItem;
+  avatarItemId: number; // reference to avatarItem
   battlepass: Battlepass;
   battlepassId: number; // reference to battlepass
 }
@@ -80,6 +109,9 @@ export {
   Group,
   Student,
   GroupStudent,
+  Avatar,
+  AvatarHasItem,
+  AvatarItem,
   Battlepass,
   BattlepassReward,
   BattlepassProgress,

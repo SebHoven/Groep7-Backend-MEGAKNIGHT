@@ -1,6 +1,7 @@
 import express from 'express';
-import { createProxyMiddleware, Options } from 'http-proxy-middleware';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
+import type { Options } from 'http-proxy-middleware';
 import { IncomingMessage, ServerResponse } from 'http';
 
 dotenv.config();
@@ -8,17 +9,12 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-
 const GROUPS_SERVICE_URL = process.env.GROUPS_SERVICE_URL || 'http://groups:3012';
 const TASKS_SERVICE_URL = process.env.TASKS_SERVICE_URL || 'http://tasks:3013';
 const AVATAR_SERVICE_URL = process.env.AVATAR_SERVICE_URL || 'http://avatar:3014';
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://auth:3015';
 const MAP_SERVICE_URL = process.env.MAP_SERVICE_URL || 'http://map:3016';
-
-
-// Body parser middleware (for any direct routes if needed)
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+const LEADERBOARD_SERVICE_URL = process.env.LEADERBOARD_SERVICE_URL || 'http://leaderboard:3017';
 
 // Manual CORS headers
 app.use((req, res, next) => {
@@ -43,6 +39,7 @@ app.get('/health', (_, res) => {
       groups: GROUPS_SERVICE_URL,
       tasks: TASKS_SERVICE_URL,
       avatar: AVATAR_SERVICE_URL,
+      leaderboard: LEADERBOARD_SERVICE_URL,
       map: MAP_SERVICE_URL
     }
   });
@@ -200,6 +197,40 @@ app.use(
       }
     }
   } as Options)
+  );
+
+// Leaderboard service proxy
+app.use(
+  '/api/leaderboard',
+  createProxyMiddleware({
+    target: LEADERBOARD_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: { '^/api/leaderboard': '' },
+    on: {
+      proxyReq: (proxyReq, req, res) => {
+        console.log('=== LEADERBOARD PROXY ===');
+        console.log(`Original URL: ${req.url}`);
+        console.log(`Proxied to: ${LEADERBOARD_SERVICE_URL}${proxyReq.path}`);
+        console.log(`Method: ${req.method}`);
+      },
+      proxyRes: (proxyRes, req, res) => {
+        console.log(`[Leaderboard] Response Status: ${proxyRes.statusCode}`);
+      },
+      error: (err, req, res) => {
+        console.error('=== LEADERBOARD PROXY ERROR ===');
+        console.error(`Error: ${err.message}`);
+        if (res instanceof ServerResponse) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            error: 'Leaderboard service unavailable',
+            message: err.message,
+            target: LEADERBOARD_SERVICE_URL,
+            url: req.url
+          }));
+        }
+      }
+    }
+  })
 );
 
 app.listen(PORT, () => {
@@ -208,4 +239,6 @@ app.listen(PORT, () => {
   console.log(`Proxying /api/tasks/* to ${TASKS_SERVICE_URL}`);
   console.log(`Proxying /api/avatar/* to ${AVATAR_SERVICE_URL}`);
   console.log(`Proxying /api/* to ${GROUPS_SERVICE_URL}`);
+  console.log(`Proxying /api/leaderboard* to ${LEADERBOARD_SERVICE_URL}`);
+
 });
