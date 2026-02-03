@@ -7,7 +7,7 @@ services:
     networks:
       - schoolyard
     healthcheck:
-      test: ["CMD", "test", "-f", "/db/groups.db"]
+      test: [ "CMD", "test", "-f", "/db/groups.db" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -23,6 +23,7 @@ services:
       GROUPS_SERVICE_URL: http://groups:3012
       TASKS_SERVICE_URL: http://tasks:3013
       AVATAR_SERVICE_URL: http://avatar:3014
+      LEADERBOARD_SERVICE_URL: http://leaderboard:3017
     depends_on:
       database:
         condition: service_healthy
@@ -70,7 +71,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    
+
   tasks:
     container_name: tasks
     build: ./tasks
@@ -98,6 +99,19 @@ services:
       - "3014:3014" 
     working_dir: /usr/src/app
     command: npm run dev
+
+  leaderboard:
+    container_name: leaderboard
+    build: ./leaderboard
+    ports:
+      - "3017:3017"
+    volumes:
+      - db_data:/db
+    environment:
+      DATABASE_URL: "file:/db/groups.db"
+      PORT: 3017
+    networks:
+      - schoolyard
 
 networks:
   schoolyard:

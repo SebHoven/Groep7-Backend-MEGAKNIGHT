@@ -1,0 +1,140 @@
+// Prisma schema for leaderboard/education project
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// --------------------
+// Teachers & Groups
+// --------------------
+model Teacher {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  name      String?
+  userId    String?   // reference to auth service user
+  groups    Group[]
+}
+
+model Group {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  name         String
+  teacherId    Int
+  teacher      Teacher   @relation(fields: [teacherId], references: [id])
+  students     Student[]
+  groupstudent GroupStudent[]
+}
+
+// --------------------
+// Students
+// --------------------
+model Student {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  name         String
+  userId       String?   // reference to auth service user
+  groupId      Int?
+  group        Group?    @relation(fields: [groupId], references: [id])
+  groupstudent GroupStudent[]
+  avatar       Avatar[]
+  progress     BattlepassProgress[]
+}
+
+model GroupStudent {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  groupId   Int
+  studentId Int
+  group     Group    @relation(fields: [groupId], references: [id])
+  student   Student  @relation(fields: [studentId], references: [id])
+}
+
+// --------------------
+// Avatar system
+// --------------------
+model Avatar {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  studentId Int
+  student   Student   @relation(fields: [studentId], references: [id])
+  avatarItem AvatarItemHasAvatar[]
+}
+
+model AvatarItem {
+  id               Int       @id @default(autoincrement())
+  createdAt        DateTime  @default(now())
+  slot             Int
+  name             String
+  texture          String
+  avatarItem       AvatarItemHasAvatar[]
+  battlepassReward BattlepassReward[]
+}
+
+model AvatarItemHasAvatar {
+  id           Int       @id @default(autoincrement())
+  createdAt    DateTime  @default(now())
+  avatarId     Int
+  avatarItemId Int
+  avatar       Avatar     @relation(fields: [avatarId], references: [id])
+  avataritem   AvatarItem @relation(fields: [avatarItemId], references: [id])
+}
+
+// --------------------
+// Battlepass system
+// --------------------
+model Battlepass {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  rewards   BattlepassReward[]
+  progress  BattlepassProgress[]
+}
+
+model BattlepassReward {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  level        Int
+  avatarItemId Int
+  battlepassId Int
+  avatarItem   AvatarItem  @relation(fields: [avatarItemId], references: [id])
+  battlepass   Battlepass  @relation(fields: [battlepassId], references: [id])
+}
+
+model BattlepassProgress {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  xp           Int
+  level        Int
+  battlepassId Int
+  studentId    Int
+  battlepass   Battlepass @relation(fields: [battlepassId], references: [id])
+  student      Student    @relation(fields: [studentId], references: [id])
+}
+
+// --------------------
+// Maps
+// --------------------
+model Map {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime   @default(now())
+  name      String
+  imageUrl  String
+  states    MapState[]
+}
+
+model MapState {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  zoom      Float    @default(1)
+  positionX Float    @default(0)
+  positionY Float    @default(0)
+  mapId     Int      @unique
+  map       Map      @relation(fields: [mapId], references: [id], onDelete: Cascade)
+}
