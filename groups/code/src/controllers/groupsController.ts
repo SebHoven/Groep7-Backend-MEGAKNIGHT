@@ -89,7 +89,6 @@ export const getGroupStudents = async (req: Request, res: Response) => {
             include: {
                 students: {
                     include: {
-                        avatar: true,
                         progress: true
                     }
                 }
@@ -117,7 +116,10 @@ export const getGroupStudents = async (req: Request, res: Response) => {
 export const getUnassignedStudents = async (req: Request, res: Response) => {
     try {
         const students = await prisma.student.findMany({
-            where: { groupId: null }
+            where: { groupId: null },
+            include: {
+                progress: true
+            }
         });
         
         res.status(200).json({
