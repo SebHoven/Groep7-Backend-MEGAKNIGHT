@@ -21,6 +21,7 @@ services:
       PORT: 3000
       GROUPS_SERVICE_URL: http://groups:3012
       TASKS_SERVICE_URL: http://tasks:3013
+      MAP_SERVICE_URL: http://map:3016
       AVATAR_SERVICE_URL: http://avatar:3014
       AUTH_SERVICE_URL: http://auth:3015
       MAP_SERVICE_URL: http://map:3016
