@@ -17,9 +17,8 @@ model Teacher {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   name      String?
+  userId    String?   // reference to auth service user
   groups    Group[]
-  user      User?     @relation(fields: [userId], references: [id])
-  userId    String?   @unique
 }
 
 model Group {
@@ -36,13 +35,13 @@ model Student {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
   name         String
+  userId       String?   // reference to auth service user
+
   group        Group?   @relation(fields: [groupId], references: [id])
   groupId      Int?
   groupstudent GroupStudent[]
   avatar       Avatar[]
   progress     BattlepassProgress[]
-  user         User?    @relation(fields: [userId], references: [id])
-  userId       String?  @unique
 }
 
 model GroupStudent {
@@ -110,22 +109,6 @@ model BattlepassProgress {
   battlepass   Battlepass @relation(fields: [battlepassId], references: [id])
   student      Student   @relation(fields: [studentId], references: [id])
   studentId    Int
-}
-
-model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  password  String
-  name      String?
-  role      String    @default("student") // "student" or "teacher"
-  lastLogin DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  
-  teacher   Teacher?
-  student   Student?
-
-  @@map("users")
 }
 
 model Map {

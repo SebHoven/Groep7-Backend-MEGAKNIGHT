@@ -19,12 +19,15 @@ services:
       - "3000:3000"
     environment:
       PORT: 3000
+      AUTH_SERVICE_URL: http://auth:3015
       GROUPS_SERVICE_URL: http://groups:3012
       TASKS_SERVICE_URL: http://tasks:3013
       MAP_SERVICE_URL: http://map:3016
     depends_on:
       database:
         condition: service_healthy
+      auth:
+        condition: service_started
       groups:
         condition: service_started
       tasks:
@@ -32,13 +35,29 @@ services:
     networks:
       - schoolyard
 
+  auth:
+    container_name: auth
+    build: ./auth-service
+    volumes:
+      - ./auth-service:/usr/src/app
+      - /usr/src/app/node_modules
+      - auth-db:/usr/src/app/prisma
+    networks:
+      - schoolyard
+    ports:
+      - "3015:3015"
+    environment:
+      DATABASE_URL: "file:./prisma/auth.db"
+      PORT: 3015
+      JWT_SECRET: "secretkey"
+    working_dir: /usr/src/app
+    command: sh -c "npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
+
   groups:
     container_name: groups
     build: ./groups
     volumes:
-      - ./groups/code:/usr/src/app
-      - /usr/src/app/node_modules
-      - db_data:/db  # Mount shared database volume
+      - db_data:/db
     networks:
       - schoolyard
     ports:
@@ -47,8 +66,6 @@ services:
       DATABASE_URL: "file:/db/groups.db"
       PORT: 3012
       JWT_SECRET: "secretkey"
-    working_dir: /usr/src/app
-    command: sh -c "chmod 777 /db && npm install && npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
     depends_on:
       database:
         condition: service_healthy
@@ -96,3 +113,4 @@ volumes:
   db_data:
   tasks-db:
   map-db:
+  auth-db:

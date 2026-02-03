@@ -32,7 +32,7 @@ export class LoginController {
           email: true,
           password: true,
           name: true,
-          role: true  // Include role
+          role: true
         }
       });
       
@@ -56,7 +56,7 @@ export class LoginController {
         { 
           userId: user.id, 
           email: user.email,
-          role: user.role  // Include role in token
+          role: user.role
         },
         process.env.JWT_SECRET!,
         { expiresIn: '24h' }
@@ -76,7 +76,7 @@ export class LoginController {
             id: user.id,
             email: user.email,
             name: user.name,
-            role: user.role  // Return role
+            role: user.role
           }
         }
       });
