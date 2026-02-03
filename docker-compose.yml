@@ -19,10 +19,11 @@ services:
       - "3000:3000"
     environment:
       PORT: 3000
-      AUTH_SERVICE_URL: http://auth:3015
       GROUPS_SERVICE_URL: http://groups:3012
       TASKS_SERVICE_URL: http://tasks:3013
       AVATAR_SERVICE_URL: http://avatar:3014
+      AUTH_SERVICE_URL: http://auth:3015
+      MAP_SERVICE_URL: http://map:3016
       LEADERBOARD_SERVICE_URL: http://leaderboard:3017
     depends_on:
       database:
@@ -113,6 +114,24 @@ services:
     networks:
       - schoolyard
 
+  map:
+    container_name: map
+    build: ./map
+    volumes:
+      - ./map/code:/usr/src/app
+      - /usr/src/app/node_modules
+      - map-db:/usr/src/app/prisma
+    networks:
+      - schoolyard
+    ports:
+      - "3016:3016"
+    environment:
+      DATABASE_URL: "file:./prisma/map.db"
+      PORT: 3016
+      JWT_SECRET: "secretkey"
+    working_dir: /usr/src/app
+    command: sh -c "npx prisma db push --accept-data-loss && npx prisma generate && npm run dev"
+
 networks:
   schoolyard:
     driver: bridge
@@ -120,4 +139,5 @@ networks:
 volumes:
   db_data:
   tasks-db:
+  map-db:
   auth-db:

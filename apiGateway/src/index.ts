@@ -13,7 +13,9 @@ const GROUPS_SERVICE_URL = process.env.GROUPS_SERVICE_URL || 'http://groups:3012
 const TASKS_SERVICE_URL = process.env.TASKS_SERVICE_URL || 'http://tasks:3013';
 const AVATAR_SERVICE_URL = process.env.AVATAR_SERVICE_URL || 'http://avatar:3014';
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://auth:3015';
+const MAP_SERVICE_URL = process.env.MAP_SERVICE_URL || 'http://map:3016';
 const LEADERBOARD_SERVICE_URL = process.env.LEADERBOARD_SERVICE_URL || 'http://leaderboard:3017';
+
 
 // Body parser middleware (for any direct routes if needed)
 app.use(express.json());
@@ -46,7 +48,8 @@ app.get('/health', (_, res) => {
       groups: GROUPS_SERVICE_URL,
       tasks: TASKS_SERVICE_URL,
       avatar: AVATAR_SERVICE_URL,
-      leaderboard: LEADERBOARD_SERVICE_URL
+      leaderboard: LEADERBOARD_SERVICE_URL,
+      map: MAP_SERVICE_URL
     }
   });
 });
