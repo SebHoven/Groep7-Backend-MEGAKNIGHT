@@ -24,7 +24,7 @@ router.get('/verify', loginController.verifyToken);
 router.post('/register', registerController.register);
 
 // Student routes
-router.get('/students', studentsController.getAllStudents);
+router.get('/students', studentsController.getStudentsByIds);
 router.get('/students/:id', studentsController.getStudentById);
 
 export default router;

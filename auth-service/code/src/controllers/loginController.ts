@@ -32,7 +32,9 @@ export class LoginController {
           email: true,
           password: true,
           name: true,
-          role: true
+          role: true,
+          student: true,
+          teacher: true
         }
       });
       
@@ -76,7 +78,9 @@ export class LoginController {
             id: user.id,
             email: user.email,
             name: user.name,
-            role: user.role
+            role: user.role,
+            student: user.student,
+            teacher: user.teacher
           }
         }
       });
@@ -120,7 +124,7 @@ export class LoginController {
 
       const user = await prisma.user.findUnique({
         where: { id: decoded.userId },
-        select: { id: true, email: true, name: true, role: true }
+        select: { id: true, email: true, name: true, role: true, student: true, teacher: true }
       });
 
       if (!user) {
@@ -136,7 +140,9 @@ export class LoginController {
           userId: user.id,
           email: user.email,
           name: user.name,
-          role: user.role
+          role: user.role,
+          student: user.student,
+          teacher: user.teacher
         }
       });
     } catch (error) {

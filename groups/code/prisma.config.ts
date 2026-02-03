@@ -1,5 +1,5 @@
-require('dotenv').config()
+// import "dotenv/config";
 
-module.exports = {
-  schema: './prisma/schema.prisma',
-}
+// export default {
+//   schema: './prisma/schema.prisma',
+// }

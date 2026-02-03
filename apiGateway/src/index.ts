@@ -118,6 +118,46 @@ app.use(
   } as Options)
 );
 
+// Avatar service proxy
+app.use(
+  '/api/avatar',
+  createProxyMiddleware({
+    target: AVATAR_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: { '^/api/avatar': '' },
+    logLevel: 'debug',
+    on: {
+      proxyReq: (proxyReq, req, res) => {
+        console.log('=== AVATAR PROXY ===');
+        console.log(`Original URL: ${req.url}`);
+        console.log(`Proxied to: ${AVATAR_SERVICE_URL}${proxyReq.path}`);
+        console.log(`Method: ${req.method}`);
+        console.log('====================');
+      },
+      proxyRes: (proxyRes, req, res) => {
+        console.log(`[Avatar] Response Status: ${proxyRes.statusCode}`);
+      },
+      error: (err, req, res) => {
+        console.error('=== AVATAR PROXY ERROR ===');
+        console.error(`Error: ${err.message}`);
+        console.error(`Request: ${req.method} ${req.url}`);
+        console.error(`Target: ${AVATAR_SERVICE_URL}`);
+        console.error('==========================');
+        
+        if (res instanceof ServerResponse) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 
+            error: 'Avatar service unavailable',
+            message: err.message,
+            target: AVATAR_SERVICE_URL,
+            url: req.url
+          }));
+        }
+      }
+    }
+  } as Options)
+);
+
 // Groups service proxy (catch-all, must be last)
 app.use(
   '/api',
@@ -162,5 +202,6 @@ app.listen(PORT, () => {
   console.log(`API Gateway running on port ${PORT}`);
   console.log(`Proxying /api/auth/* to ${AUTH_SERVICE_URL}`);
   console.log(`Proxying /api/tasks/* to ${TASKS_SERVICE_URL}`);
+  console.log(`Proxying /api/avatar/* to ${AVATAR_SERVICE_URL}`);
   console.log(`Proxying /api/* to ${GROUPS_SERVICE_URL}`);
 });
