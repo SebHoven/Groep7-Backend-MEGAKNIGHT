@@ -1,23 +1,27 @@
-FROM node:18-alpine
+FROM node:24.7.0
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
-# Copy package files FIRST (from code/)
+# 1. Copy package.json & tsconfig.json first (caching layer)
 COPY code/package*.json ./
 COPY code/tsconfig.json ./
 
-# Install dependencies
+# 2. Install dependencies
 RUN npm install
 
-# Copy rest of the source
-COPY code .
+# 3. Copy Prisma schema + migrations
+COPY code/prisma ./prisma
 
-# Prisma
-RUN npx prisma generate
+# 4. Generate Prisma client
+# Explicitly tell Prisma where schema is to avoid "schema not found" errors
+RUN npx prisma generate --schema ./prisma/schema.prisma
 
-# Build
+# 5. Copy TypeScript source code
+COPY code/src ./src
+
+# 6. Build TypeScript
 RUN npm run build
 
+# 7. Expose port & run
 EXPOSE 3015
-
 CMD ["npm", "start"]

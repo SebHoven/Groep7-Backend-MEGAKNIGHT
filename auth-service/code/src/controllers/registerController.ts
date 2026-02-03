@@ -56,37 +56,55 @@ export class RegisterController {
 
       // Create user
       const newUser = await prisma.user.create({
-        data: {
-          email: email.toLowerCase(),
-          password: hashedPassword,
-          name: name,
-          role: userRole,
-          // Automatically create Student or Teacher record based on role
-          ...(userRole === "student" && {
-            student: {
-              create: {
-                name: name
-              }
-            }
-          }),
-          ...(userRole === "teacher" && {
-            teacher: {
-              create: {
-                name: name
-              }
-            }
-          })
-        },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          role: true,
-          createdAt: true,
-          student: true,
-          teacher: true
+  data: {
+    email: email.toLowerCase(),
+    password: hashedPassword,
+    name: name,
+    role: role, // "student" or "teacher"
+    // Automatically create Student or Teacher record based on role
+    ...(role === "student" && {
+      student: {
+        create: {
+          name: name
         }
-      });
+      }
+    }),
+    ...(role === "teacher" && {
+      teacher: {
+        create: {
+          name: name
+        }
+      }
+    })
+  },
+  select: {
+    id: true,
+    email: true,
+    name: true,
+    role: true,
+    createdAt: true,
+    student: true,
+    teacher: true
+  }
+});
+
+      // Sync to groups service
+      try {
+        const GROUPS_SERVICE_URL = process.env.GROUPS_SERVICE_URL || 'http://groups:3012';
+        const syncEndpoint = role === 'student' ? '/students/sync' : '/teachers/sync';
+        
+        await fetch(`${GROUPS_SERVICE_URL}${syncEndpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: newUser.id,
+            name: newUser.name
+          })
+        });
+      } catch (syncError) {
+        console.error('Warning: Failed to sync to groups service:', syncError);
+        // Don't fail registration if sync fails
+      }
 
       return res.status(201).json({
         success: true,

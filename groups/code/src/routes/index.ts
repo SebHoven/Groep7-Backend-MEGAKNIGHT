@@ -1,5 +1,6 @@
 import Express, { Router } from 'express';
 import { getUnassignedStudents, getAllGroups, getGroupById, getGroupStudents, getGroupsByTeacher, createGroup, updateGroup, deleteGroup, addStudentToGroup, removeStudentFromGroup} from '../controllers/groupsController.js';
+import { syncStudent, syncTeacher, getAllStudents, getStudentByUserId, getTeacherByUserId } from '../controllers/studentsController.js';
 import cors from 'cors';
 import { getLeaderboard } from '../controllers/leaderboardController.js';
 import mapRoutes from './maps.js';
@@ -23,5 +24,12 @@ router.delete('/groups/:groupId/students/:studentId', cors(), removeStudentFromG
 
 router.get('/leaderboard', cors(), getLeaderboard);
 router.use('/maps', mapRoutes);
+
+// Student sync routes (called by auth service)
+router.post('/students/sync', cors(), syncStudent);
+router.post('/teachers/sync', cors(), syncTeacher);
+router.get('/students', cors(), getAllStudents);
+router.get('/students/user/:userId', cors(), getStudentByUserId);
+router.get('/teachers/user/:userId', cors(), getTeacherByUserId);
 
 export default router;

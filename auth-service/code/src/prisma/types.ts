@@ -9,4 +9,19 @@ interface User {
   updatedAt?: Date;
 }
 
-export { User };
+interface Student {
+  id?: number;
+  createdAt?: Date;
+  name: string;
+  groupId?: number; // Made optional
+  userId?: string; // Link to User
+}
+
+interface Teacher {
+  id?: number;
+  createdAt?: Date;
+  name?: string;
+  userId?: string; // Link to User
+}
+
+export { User, Student, Teacher };

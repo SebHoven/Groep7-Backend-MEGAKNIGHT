@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { Task } from '../prisma/types.js';
+import { getStudentsByIds } from '../helpers/authServiceClient.js';
 const prisma: PrismaClient = new PrismaClient();
 
 interface TaskResponse {
@@ -17,16 +18,28 @@ export const getAllTasks = async (req: Request, res: Response) => {
         const tasks = await prisma.task.findMany({
             include: {
                 tasksteps: true,
-                taskstudent: true // Remove the nested student include
+                taskstudent: true
             }
         });
+
+        // Enrich tasks with student data from auth service
+        const tasksWithStudents = await Promise.all(tasks.map(async (task) => {
+            const studentIds = task.taskstudent.map(ts => ts.studentId);
+            const students = await getStudentsByIds(studentIds);
+            
+            return {
+                ...task,
+                students: students
+            };
+        }));
+
         const taskResponse: TaskResponse = {
             meta: {
-                count: tasks.length,
+                count: tasksWithStudents.length,
                 title: 'All tasks',
                 url: req.url
             },
-            data: tasks
+            data: tasksWithStudents as any
         };
         res.json(taskResponse);
     } catch (errors) {
@@ -38,17 +51,31 @@ export const getAllTasks = async (req: Request, res: Response) => {
 export const getTaskById = async (req: Request, res: Response) => {
     try {
         const id = req.params.id;
-        const tasks = await prisma.task.findUnique({
+        const task = await prisma.task.findUnique({
             where: { id: Number(id) },
             include: {
                 tasksteps: true,
-                taskstudent: true // Remove the nested student include
+                taskstudent: true
             }
         });
-        res.status(200).json(tasks);
+
+        if (!task) {
+            return res.status(404).json({ error: 'taak niet gevonden' });
+        }
+
+        // Enrich task with student data from auth service
+        const studentIds = task.taskstudent.map(ts => ts.studentId);
+        const students = await getStudentsByIds(studentIds);
+
+        const taskWithStudents = {
+            ...task,
+            students: students
+        };
+
+        return res.status(200).json(taskWithStudents);
     } catch (errors) {
         console.error('Get task by ID error:', errors);
-        res.status(500).json({ error: 'kan je taak niet vinden', details: String(errors) })
+        return res.status(500).json({ error: 'kan je taak niet vinden', details: String(errors) })
     }
 }
 
