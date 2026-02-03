@@ -104,19 +104,6 @@ interface MapState {
   map?: Map;
 }
 
-interface User {
-  id?: string;
-  email: string;
-  password: string;
-  name?: string;
-  role: string; // "student" or "teacher"
-  lastLogin?: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
-  teacher?: Teacher;
-  student?: Student;
-}
-
 export {
   Teacher,
   Group,
@@ -130,5 +117,4 @@ export {
   BattlepassProgress,
   Map,
   MapState,
-  User
 };

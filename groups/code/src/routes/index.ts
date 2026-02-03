@@ -1,13 +1,7 @@
 import Express, { Router } from 'express';
 import { getUnassignedStudents, getAllGroups, getGroupById, getGroupStudents, getGroupsByTeacher, createGroup, updateGroup, deleteGroup, addStudentToGroup, removeStudentFromGroup} from '../controllers/groupsController.js';
 import cors from 'cors';
-import { LoginController } from '../controllers/loginController.js';
-import { RegisterController } from '../controllers/registerController.js';
 import { getLeaderboard } from '../controllers/leaderboardController.js';
-
-const registerController = new RegisterController();
-
-const loginController = new LoginController();
 import mapRoutes from './maps.js';
 
 const router: Router = Express.Router();
